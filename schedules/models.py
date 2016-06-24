@@ -35,7 +35,7 @@ class Schedule(models.Model):
     def starting(self):
         start_day = self.workday_set.first()
         if start_day:
-            return start_day.date
+            return start_day.day_date
         else:
             return None
 
@@ -56,9 +56,8 @@ class WorkDay(models.Model):
     day_of_the_week = models.ForeignKey(DayOfWeek)
     schedule = models.ForeignKey(Schedule)
 
-
     def __str__(self):
-        return "{}, {}".format(self.date, self.day_of_the_week)
+        return "{}, {}".format(self.day_date, self.day_of_the_week)
 
 #
 # class Shift(models.Model):

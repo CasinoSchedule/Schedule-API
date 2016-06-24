@@ -13,6 +13,8 @@ def create_schedule(monday):
     Create a schedule along with 7 WorkDay objects, starting from the monday
     argument.
     """
+    # Add a check to verify monday.
+
     one_day = datetime.timedelta(days=1)
     #now = datetime.datetime.now()
     new_schedule = Schedule.objects.create()
@@ -37,13 +39,27 @@ def most_recent_monday(date):
     return date - (date.weekday() * one_day)
 
 
+def next_monday(date):
+    one_day = datetime.timedelta(days=1)
+    return date + ((7 - date.weekday()) * one_day)
+
+
+class ArbitraryDateSchedule(generics.RetrieveAPIView):
+    """
+    Takes a date request and returns the schedule for that week.
+    """
+
+    # Should break CurrentSchedules logic into a function before writing
+    # this view.
+    pass
+
+
 class CurrentSchedules(generics.ListAPIView):
     """
     Return current and on_deck schedules. This view will check for the current
     date and create the objects if they do not yet exist.
     """
 
-    # Just current schedule first
     serializer_class = ScheduleSerializer
 
     def get_queryset(self):
@@ -58,8 +74,23 @@ class CurrentSchedules(generics.ListAPIView):
             current_schedule = work_day.schedule
         else:
             current_schedule = create_schedule(monday)
+
+        second_monday = next_monday(today)
+        second_work_day = WorkDay.objects.filter(day_date=second_monday).first()
+
+        if second_work_day:
+            second_schedule = second_work_day.schedule
+        else:
+            second_schedule = create_schedule(second_monday)
+
         qs.append(current_schedule)
+        qs.append(second_schedule)
         return qs
+
+
+class ScheduleDetail(generics.RetrieveAPIView):
+    serializer_class = ScheduleSerializer
+    queryset = Schedule.objects.all()
 
 
 class DayOfTheWeekList(generics.ListAPIView):
@@ -68,5 +99,10 @@ class DayOfTheWeekList(generics.ListAPIView):
 
 
 class WorkDayList(generics.ListAPIView):
+    serializer_class = WorkDaySerializer
+    queryset = WorkDay.objects.all()
+
+
+class WorkDayDetail(generics.RetrieveAPIView):
     serializer_class = WorkDaySerializer
     queryset = WorkDay.objects.all()
