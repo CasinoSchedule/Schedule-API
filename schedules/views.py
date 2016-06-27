@@ -66,7 +66,7 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
     Takes a month and year and returns a list of objects, one for each day of
     the month with the associated shifts.
 
-    example POST: {"month": 6, "year": 2016}
+    example GET: schedules/employeemonth/?month=6&year=2016
     """
     serializer_class = EmployeeShiftSerializer
 
