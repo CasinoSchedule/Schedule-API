@@ -94,6 +94,13 @@ class ListCreateShift(generics.ListCreateAPIView):
     #authentication_classes = []
 
 
+class WeekShiftsByEmployee(generics.ListAPIView):
+    """
+    Accepts a date querystring and returns a list of objects, each with an
+    employee and the shifts they are scheduled that week.
+    """
+    pass
+
 
 # class ArbitraryDateSchedule(generics.RetrieveAPIView):
 #     """
