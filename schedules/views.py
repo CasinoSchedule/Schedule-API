@@ -2,10 +2,13 @@ from django.shortcuts import render
 from rest_framework import generics, status
 import datetime
 import calendar
+from rest_framework.response import Response
 
-from schedules.models import Schedule, DayOfWeek, WorkDay
+from rest_framework.views import APIView
+
+from schedules.models import Schedule, DayOfWeek, WorkDay, Shift
 from schedules.serializers import DayOfWeekSerializer, ScheduleSerializer, \
-    WorkDaySerializer
+    WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer
 
 
 def create_schedule(monday):
@@ -16,7 +19,6 @@ def create_schedule(monday):
     # Add a check to verify monday.
 
     one_day = datetime.timedelta(days=1)
-    #now = datetime.datetime.now()
     new_schedule = Schedule.objects.create()
 
     for i in range(7):
@@ -44,14 +46,70 @@ def next_monday(date):
     return date + ((7 - date.weekday()) * one_day)
 
 
-class ArbitraryDateSchedule(generics.RetrieveAPIView):
+def get_or_create_schedule(date):
     """
-    Takes a date request and returns the schedule for that week.
+    Retrieve or create the schedule that contains the date argument.
     """
+    monday = most_recent_monday(date)
+    work_day = WorkDay.objects.filter(day_date=monday).first()
 
-    # Should break CurrentSchedules logic into a function before writing
-    # this view.
-    pass
+    if work_day:
+        current_schedule = work_day.schedule
+    else:
+        current_schedule = create_schedule(monday)
+
+    return current_schedule
+
+
+class EmployeeShiftsByMonth(generics.ListAPIView):
+    """
+    Takes a month and year and returns a list of objects, one for each day of
+    the month with the associated shifts.
+
+    example POST: {"month": 6, "year": 2016}
+    """
+    serializer_class = EmployeeShiftSerializer
+
+    def get_queryset(self):
+
+        year, month = int(self.request.query_params["year"]), int(self.request.query_params["month"])
+        first_weekday = datetime.date(year, month, 1).weekday()
+        preceding_days = (first_weekday + 1) % 7
+        month_days = calendar.monthrange(year, month)[1]
+        trailing_days = 42 - month_days - preceding_days
+
+        start_day = datetime.date(year, month, 1) - datetime.timedelta(days=preceding_days)
+        final_day = datetime.date(year, month, month_days) + datetime.timedelta(days=trailing_days)
+
+        qs = self.request.user.employeeprofile.shift_set.filter(
+            day__day_date__gte=start_day,
+            day__day_date__lte=final_day
+        )
+        return qs
+
+
+class ListCreateShift(generics.ListCreateAPIView):
+    serializer_class = ShiftSerializer
+    queryset = Shift.objects.all()
+    #authentication_classes = []
+
+
+
+# class ArbitraryDateSchedule(generics.RetrieveAPIView):
+#     """
+#     Takes a date request in a querystring and returns the schedule for that
+#     week.
+#     Example: schedules/bydate/?date=2015-01-01
+#     """
+#
+#     serializer_class = ScheduleSerializer
+#
+#     def get_queryset(self):
+#
+#         date_requested = self.request.query_params["date"]
+#
+#         a = 1
+#         return super().get_queryset()
 
 
 class CurrentSchedules(generics.ListAPIView):
@@ -65,23 +123,14 @@ class CurrentSchedules(generics.ListAPIView):
     def get_queryset(self):
         qs = []
         today = datetime.datetime.now().date()
-        monday = most_recent_monday(today)
-        work_day = WorkDay.objects.filter(day_date=monday).first()
+        current_schedule = get_or_create_schedule(today)
+        # switch other schedules from current to expired.
+        # set this schedule to the new current.
+        current_schedule.status = "current"
 
-        if work_day:
-            # switch other schedules from current to expired.
-            # set this schedule to the new current.
-            current_schedule = work_day.schedule
-        else:
-            current_schedule = create_schedule(monday)
-
-        second_monday = next_monday(today)
-        second_work_day = WorkDay.objects.filter(day_date=second_monday).first()
-
-        if second_work_day:
-            second_schedule = second_work_day.schedule
-        else:
-            second_schedule = create_schedule(second_monday)
+        second_date = today + datetime.timedelta(days=7)
+        second_schedule = get_or_create_schedule(second_date)
+        second_schedule.status = "on_deck"
 
         qs.append(current_schedule)
         qs.append(second_schedule)

@@ -1,5 +1,5 @@
 from django.db import models
-
+import datetime
 from profiles.models import ManagerProfile, EmployeeProfile
 
 
@@ -21,7 +21,7 @@ class DayOfWeek(models.Model):
 
 class Schedule(models.Model):
     """
-    A weekly schedule. Made up of 7 days.
+    A weekly schedule. Made up of 7 days, starting from Monday.
     """
     manager = models.ForeignKey(ManagerProfile, null=True, blank=True)
 
@@ -33,7 +33,7 @@ class Schedule(models.Model):
 
     @property
     def starting(self):
-        start_day = self.workday_set.first()
+        start_day = self.workday_set.order_by("day_date").first()
         if start_day:
             return start_day.day_date
         else:
@@ -41,7 +41,7 @@ class Schedule(models.Model):
 
     def __str__(self):
         return "schedule {}. Starting {}".format(
-            self.id, self.workday_set.all()[0].date
+            self.id, self.workday_set.all()[0].day_date
         )
 
 
@@ -59,24 +59,33 @@ class WorkDay(models.Model):
     def __str__(self):
         return "{}, {}".format(self.day_date, self.day_of_the_week)
 
-#
-# class Shift(models.Model):
-#     """
-#     A single shift for one employee.
-#     """
-#     starting_time = models.DateTimeField()
-#     length = models.IntegerField(default=8)
-#     #location = models.CharField(max_length=255, blank=True, null=True)
-#
-#     day = models.ForeignKey(WorkDay)
-#     employee = models.ForeignKey(EmployeeProfile)
-#
-#     # skills_required = models.CharField(max_length=255)
-#     # options_visible = models.BooleanField(default=False)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     modified_at = models.DateTimeField(auto_now=True)
-#
-#
+
+class Shift(models.Model):
+    """
+    A single shift for one employee.
+    """
+    starting_time = models.TimeField()
+    length = models.IntegerField(default=8)
+
+    day = models.ForeignKey(WorkDay)
+    employee = models.ForeignKey(EmployeeProfile)
+
+    # location = models.CharField(max_length=255, blank=True, null=True)
+    # skills_required = models.CharField(max_length=255)
+    # options_visible = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def calendar_date(self):
+        return self.day.day_date
+
+    # @property
+    # def end_time(self):
+    #     shift_length = datetime.timedelta(hours=self.length)
+    #     return self.starting_time + shift_length
+
+
 # class EOList(models.Model):
 #     position = models.CharField(max_length=50, null=True, blank=True)
 #

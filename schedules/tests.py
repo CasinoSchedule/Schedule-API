@@ -1,3 +1,7 @@
 from django.test import TestCase
 
-# Create your tests here.
+
+# EmployeeShiftsByMonth: Check that date range in correct, as well as user
+# filtering.
+
+
