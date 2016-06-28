@@ -54,6 +54,8 @@ class WorkDay(models.Model):
     day_date = models.DateField(unique=True)
 
     day_of_the_week = models.ForeignKey(DayOfWeek)
+
+    # Must have schedule so they are created together.
     schedule = models.ForeignKey(Schedule)
 
     def __str__(self):
@@ -80,10 +82,13 @@ class Shift(models.Model):
     def calendar_date(self):
         return self.day.day_date
 
-    # @property
-    # def end_time(self):
-    #     shift_length = datetime.timedelta(hours=self.length)
-    #     return self.starting_time + shift_length
+    @property
+    def end_time(self):
+        dt = datetime.datetime.combine(
+            self.day.day_date, self.starting_time
+        ) + datetime.timedelta(hours=self.length
+                               )
+        return dt.time()
 
 
 # class EOList(models.Model):
@@ -119,3 +124,11 @@ class Shift(models.Model):
 #     initiating_employee = models.ForeignKey(EmployeeProfile, related_name="initiator")
 #     responding_employee = models.ForeignKey(EmployeeProfile, related_name="responder")
 #     shift = models.ForeignKey(Shift)
+#
+#
+# class ShiftTime(models.Model):
+#     """
+#     grave, swing, day.
+#     Has time periods for each and an endpoint to change them.
+#     """
+#     pass

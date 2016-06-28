@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from profiles.models import EmployeeProfile
+from profiles.serializers import EmployeeProfileSerializer
 from schedules.models import DayOfWeek, Schedule, WorkDay, Shift
 
 
@@ -29,23 +31,29 @@ class ScheduleSerializer(serializers.ModelSerializer):
                   "workday_set")
 
 
-# class EmployeeWorkDaySerializer(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = WorkDay
-#         fields = ()
-
-
 class EmployeeShiftSerializer(serializers.ModelSerializer):
 
-    #day = WorkDaySerializer(read_only=True)
+    employee = EmployeeProfileSerializer(read_only=True)
 
     class Meta:
         model = Shift
-        fields = ("starting_time", "length", "employee", "calendar_date")
+        fields = ("starting_time", "length", "employee", "calendar_date",
+                  "end_time")
+
 
 class ShiftSerializer(serializers.ModelSerializer):
 
+
     class Meta:
         model = Shift
+        fields = "__all__"
+
+
+class EmployeeShiftScheduleSerializer(serializers.ModelSerializer):
+
+    #shift_set = ShiftSerializer(many=True, read_only=True)
+    test = serializers.ReadOnlyField()
+
+    class Meta:
+        model = EmployeeProfile
         fields = "__all__"

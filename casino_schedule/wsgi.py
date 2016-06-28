@@ -16,3 +16,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "casino_schedule.settings")
 
 application = get_wsgi_application()
 application = DjangoWhiteNoise(application)
+
+
+

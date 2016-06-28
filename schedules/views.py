@@ -3,12 +3,15 @@ from rest_framework import generics, status
 import datetime
 import calendar
 from rest_framework.response import Response
+from django.db.models import Count
 
 from rest_framework.views import APIView
 
+from profiles.models import EmployeeProfile
 from schedules.models import Schedule, DayOfWeek, WorkDay, Shift
 from schedules.serializers import DayOfWeekSerializer, ScheduleSerializer, \
-    WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer
+    WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
+    EmployeeShiftScheduleSerializer
 
 
 def create_schedule(monday):
@@ -63,8 +66,10 @@ def get_or_create_schedule(date):
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
     """
-    Takes a month and year and returns a list of objects, one for each day of
-    the month with the associated shifts.
+    Takes a month and year and returns schedules for the requesting employee.
+    The time frame is an expanded six week calendar view of the month that will
+    start from Sunday in the prior month and run into the following month.
+
 
     example GET: schedules/employeemonth/?month=6&year=2016
     """
@@ -94,12 +99,35 @@ class ListCreateShift(generics.ListCreateAPIView):
     #authentication_classes = []
 
 
-class WeekShiftsByEmployee(generics.ListAPIView):
+class ShiftWeekList(generics.ListAPIView):
     """
     Accepts a date querystring and returns a list of objects, each with an
     employee and the shifts they are scheduled that week.
+
+    example: weekshift/?date=2016-6-20
+
+    Later will add filter for shift
     """
-    pass
+    serializer_class = EmployeeShiftSerializer
+
+    def get_queryset(self):
+        if not self.request.query_params.get("date"):
+            return []
+
+        dates = self.request.query_params["date"].split("-")
+        dates = [int(x) for x in dates]
+        working_date = datetime.date(dates[0], dates[1], dates[2])
+        current_schedule = get_or_create_schedule(working_date)
+
+        days = current_schedule.workday_set.order_by("day_date")
+        start = days.first().day_date
+        finish = days.last().day_date
+
+        # Later add filters for active and shift.
+        qs = Shift.objects.filter(day__day_date__gte=start,
+                                  day__day_date__lte=finish)
+
+        return qs
 
 
 # class ArbitraryDateSchedule(generics.RetrieveAPIView):

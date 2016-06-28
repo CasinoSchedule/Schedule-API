@@ -23,6 +23,11 @@ class ManagerProfile(models.Model):
     position_title = models.CharField(max_length=255)
     #department
 
+    # first_name = models.CharField(max_length=255)
+    # last_name = models.CharField(max_length=255)
+    # mi = models.CharField(max_length=1, null=True, blank=True)
+    # cloudinary_image
+
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
@@ -30,6 +35,11 @@ class ManagerProfile(models.Model):
 class EmployeeProfile(models.Model):
 
     user = models.OneToOneField(User, null=True)
+
+    # first_name = models.CharField(max_length=255)
+    # last_name = models.CharField(max_length=255)
+    # mi = models.CharField(max_length=1, null=True, blank=True)
+    # cloudinary_image
 
     employee_id = models.CharField(max_length=255)
     position_title = models.CharField(max_length=255, null=True, blank=True)
@@ -39,6 +49,7 @@ class EmployeeProfile(models.Model):
     employment_status = models.ForeignKey(EmployeeStatus, null=True, blank=True)
 
     # availability
+    # usual_shift: grave, swing, day
 
     # Validate these in form
     phone_number = models.CharField(max_length=255)
@@ -51,6 +62,10 @@ class EmployeeProfile(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def test(self):
+        return 1
 
     def __str__(self):
         return self.user.username

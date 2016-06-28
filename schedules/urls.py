@@ -1,13 +1,16 @@
 from django.conf.urls import url, include
 from schedules.views import CurrentSchedules, DayOfTheWeekList, WorkDayList, \
     ScheduleDetail, WorkDayDetail, EmployeeShiftsByMonth, \
-    ListCreateShift
+    ListCreateShift, ShiftWeekList
 
 urlpatterns = [
     url(r'^employeemonth/$', EmployeeShiftsByMonth.as_view(),
         name="days_by_month"),
 
-    url(r'shift/$', ListCreateShift.as_view(), name="list_create_shift"),
+    url(r'^shift/$', ListCreateShift.as_view(), name="list_create_shift"),
+
+    url(r'^weekshift/$', ShiftWeekList.as_view(),
+        name="week_shift_by_employee"),
 
     url(r'^daysoftheweek/$', DayOfTheWeekList.as_view(),
         name="days_of_the_week"),
