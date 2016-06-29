@@ -130,21 +130,26 @@ class ShiftWeekList(generics.ListAPIView):
         return qs
 
 
-# class ArbitraryDateSchedule(generics.RetrieveAPIView):
-#     """
-#     Takes a date request in a querystring and returns the schedule for that
-#     week.
-#     Example: schedules/bydate/?date=2015-01-01
-#     """
-#
-#     serializer_class = ScheduleSerializer
-#
-#     def get_queryset(self):
-#
-#         date_requested = self.request.query_params["date"]
-#
-#         a = 1
-#         return super().get_queryset()
+
+
+class ScheduleDetail(generics.RetrieveAPIView):
+    serializer_class = ScheduleSerializer
+    queryset = Schedule.objects.all()
+
+
+class DayOfTheWeekList(generics.ListAPIView):
+    serializer_class = DayOfWeekSerializer
+    queryset = DayOfWeek.objects.all()
+
+
+class WorkDayList(generics.ListAPIView):
+    serializer_class = WorkDaySerializer
+    queryset = WorkDay.objects.all()
+
+
+class WorkDayDetail(generics.RetrieveAPIView):
+    serializer_class = WorkDaySerializer
+    queryset = WorkDay.objects.all()
 
 
 class CurrentSchedules(generics.ListAPIView):
@@ -172,21 +177,18 @@ class CurrentSchedules(generics.ListAPIView):
         return qs
 
 
-class ScheduleDetail(generics.RetrieveAPIView):
-    serializer_class = ScheduleSerializer
-    queryset = Schedule.objects.all()
-
-
-class DayOfTheWeekList(generics.ListAPIView):
-    serializer_class = DayOfWeekSerializer
-    queryset = DayOfWeek.objects.all()
-
-
-class WorkDayList(generics.ListAPIView):
-    serializer_class = WorkDaySerializer
-    queryset = WorkDay.objects.all()
-
-
-class WorkDayDetail(generics.RetrieveAPIView):
-    serializer_class = WorkDaySerializer
-    queryset = WorkDay.objects.all()
+# class ArbitraryDateSchedule(generics.RetrieveAPIView):
+#     """
+#     Takes a date request in a querystring and returns the schedule for that
+#     week.
+#     Example: schedules/bydate/?date=2015-01-01
+#     """
+#
+#     serializer_class = ScheduleSerializer
+#
+#     def get_queryset(self):
+#
+#         date_requested = self.request.query_params["date"]
+#
+#         a = 1
+#         return super().get_queryset()

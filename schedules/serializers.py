@@ -38,7 +38,7 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
         fields = ("starting_time", "length", "employee", "calendar_date",
-                  "end_time")
+                  "end_time", "day")
 
 
 class ShiftSerializer(serializers.ModelSerializer):

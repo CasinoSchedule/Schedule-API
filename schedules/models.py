@@ -25,6 +25,9 @@ class Schedule(models.Model):
     """
     manager = models.ForeignKey(ManagerProfile, null=True, blank=True)
 
+    # Only active schedules are visible to employees
+    active = models.BooleanField(default=False)
+
     # current, on_deck, expired, upcoming
     status = models.CharField(max_length=50, null=True, blank=True)
 
@@ -40,8 +43,10 @@ class Schedule(models.Model):
             return None
 
     def __str__(self):
-        return "schedule {}. Starting {}".format(
-            self.id, self.workday_set.all()[0].day_date
+        return "schedule {}, from {} through {}".format(
+            self.id,
+            self.workday_set.first().day_date,
+            self.workday_set.last().day_date
         )
 
 
@@ -57,6 +62,9 @@ class WorkDay(models.Model):
 
     # Must have schedule so they are created together.
     schedule = models.ForeignKey(Schedule)
+
+    class Meta:
+        ordering = ["day_date"]
 
     def __str__(self):
         return "{}, {}".format(self.day_date, self.day_of_the_week)
