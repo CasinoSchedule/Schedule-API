@@ -8,5 +8,5 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         model = EmployeeProfile
         fields = ("id", "employee_id", "position_title", "phone_number",
                   "email", "phone_notifications", "email_notifications",
-                  "user", "employment_status", "days_off"
+                  "user", "employment_status"
                   )
