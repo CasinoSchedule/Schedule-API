@@ -33,8 +33,12 @@ class TestSetup(APITestCase):
                                        position_title="test"
                                        )
 
-    def generate_days(self):
-        weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-        weekends = ["Saturday", "Sunday"]
+
+class ShiftTest(TestSetup):
+    # shift creation
+    # non-overlapping, return correct response
+    # shift deletion
+
+    pass
 
 

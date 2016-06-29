@@ -11,7 +11,7 @@ from profiles.models import EmployeeProfile
 from schedules.models import Schedule, WorkDay, Shift
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
-    EmployeeShiftScheduleSerializer
+    EmployeeShiftScheduleSerializer, MultipleShiftSerializer
 
 
 def create_schedule(monday):
@@ -147,6 +147,28 @@ class WorkDayList(generics.ListAPIView):
 class WorkDayDetail(generics.RetrieveAPIView):
     serializer_class = WorkDaySerializer
     queryset = WorkDay.objects.all()
+
+
+class ShiftCreateMany(generics.ListCreateAPIView):
+    """
+    Create multiple schedules with one POST request.
+    """
+
+    serializer_class = MultipleShiftSerializer(many=True)
+    queryset = Shift.objects.all()
+
+    # def perform_create(self, serializer):
+    #     super().perform_create(serializer)
+
+    # def post(self, request, format=None):
+    #     a = 1
+    #     b=2
+    #     serializer = ShiftSerializer(request.data, many=True)
+    #     return Response(serializer.data)
+
+
+
+
 
 
 class CurrentSchedules(generics.ListAPIView):

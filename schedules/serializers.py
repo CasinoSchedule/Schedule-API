@@ -34,6 +34,15 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
 
 class ShiftSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Shift
+        fields = "__all__"
+
+
+class MultipleShiftSerializer(serializers.ModelSerializer):
+    # def __init__(self, *args, **kwargs):
+    #     many = kwargs.pop('many', True)
+    #     super(MultipleShiftSerializer, self).__init__(many=many, *args, **kwargs)
 
     class Meta:
         model = Shift

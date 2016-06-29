@@ -53,7 +53,7 @@ class WorkDay(models.Model):
         ordering = ["day_date"]
 
     def __str__(self):
-        return "{}, {}".format(self.day_date, self.day_of_the_week)
+        return "{}".format(self.day_date)
 
 
 class Shift(models.Model):
