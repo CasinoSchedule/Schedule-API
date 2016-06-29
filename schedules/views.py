@@ -149,26 +149,26 @@ class WorkDayDetail(generics.RetrieveAPIView):
     queryset = WorkDay.objects.all()
 
 
-class ShiftCreateMany(generics.ListCreateAPIView):
+class ShiftCreateMany(APIView):
     """
+    Mark, if there
+
     Create multiple schedules with one POST request.
+    Example: [
+    {"starting_time": "11:00:00", "day": 20, "employee": 1},
+     {"starting_time": "11:00:00", "day": 21, "employee": 1}
+     ]
     """
 
-    serializer_class = MultipleShiftSerializer(many=True)
+    serializer_class = MultipleShiftSerializer
     queryset = Shift.objects.all()
 
-    # def perform_create(self, serializer):
-    #     super().perform_create(serializer)
-
-    # def post(self, request, format=None):
-    #     a = 1
-    #     b=2
-    #     serializer = ShiftSerializer(request.data, many=True)
-    #     return Response(serializer.data)
-
-
-
-
+    def post(self, request, format=None):
+        serializer = ShiftSerializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CurrentSchedules(generics.ListAPIView):
