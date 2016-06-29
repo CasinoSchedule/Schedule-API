@@ -19,6 +19,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     url(r'^schedules/', include("schedules.urls")),
+    url(r'^profiles/', include("profiles.urls")),
     url(r'^admin/', admin.site.urls),
     url(r'^docs/', include('rest_framework_swagger.urls')),
     url(r'api-token-auth/$', obtain_auth_token),

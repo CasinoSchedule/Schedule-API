@@ -87,6 +87,14 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
             day__day_date__gte=start_day,
             day__day_date__lte=final_day
         )
+
+        #
+        # """ placeholder """
+        # qs = []
+        # for i in range(42):
+        #     current = start + datetime.timedelta(days=i)
+        #     shift = Shift.objects.filter(day__day_date=current).first()
+        #     qs.append(shift)
         return qs
 
 
@@ -96,14 +104,19 @@ class ListCreateShift(generics.ListCreateAPIView):
     #authentication_classes = []
 
 
+class ShiftRetrieveUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ShiftSerializer
+    queryset = Shift.objects.all()
+
+
 class ShiftWeekList(generics.ListAPIView):
     """
-    Accepts a date querystring and returns a list of objects, each with an
-    employee and the shifts they are scheduled that week.
+    Accepts a date querystring. Creates or retrieves the dates for that work
+    week and returns all shifts that fall on those days.
+
+    Used for the managers schedule view and generating new WorkDays.
 
     example: weekshift/?date=2016-6-20
-
-    Later will add filter for shift
     """
     serializer_class = EmployeeShiftSerializer
 
@@ -120,23 +133,15 @@ class ShiftWeekList(generics.ListAPIView):
         start = days.first().day_date
         finish = days.last().day_date
 
-        # Later add filters for active and shift.
         qs = Shift.objects.filter(day__day_date__gte=start,
                                   day__day_date__lte=finish)
 
         return qs
 
 
-
-
 class ScheduleDetail(generics.RetrieveAPIView):
     serializer_class = ScheduleSerializer
     queryset = Schedule.objects.all()
-
-
-# class DayOfTheWeekList(generics.ListAPIView):
-#     serializer_class = DayOfWeekSerializer
-#     queryset = DayOfWeek.objects.all()
 
 
 class WorkDayList(generics.ListAPIView):
@@ -151,7 +156,7 @@ class WorkDayDetail(generics.RetrieveAPIView):
 
 class ShiftCreateMany(APIView):
     """
-    Mark, if there
+    Mark, I can change the inputs to date objects if that would be easier.
 
     Create multiple schedules with one POST request.
     Example: [
