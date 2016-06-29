@@ -2,19 +2,10 @@ from rest_framework import serializers
 
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
-from schedules.models import DayOfWeek, Schedule, WorkDay, Shift
-
-
-class DayOfWeekSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = DayOfWeek
-        fields = ("day", "is_weekend", "python_int")
+from schedules.models import Schedule, WorkDay, Shift
 
 
 class WorkDaySerializer(serializers.ModelSerializer):
-
-    day_of_the_week = DayOfWeekSerializer(read_only=True)
 
     class Meta:
         model = WorkDay

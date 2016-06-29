@@ -44,8 +44,6 @@ class EmployeeProfile(models.Model):
     employee_id = models.CharField(max_length=255)
     position_title = models.CharField(max_length=255, null=True, blank=True)
 
-    days_off = models.ManyToManyField("schedules.DayOfWeek")
-
     employment_status = models.ForeignKey(EmployeeStatus, null=True, blank=True)
 
     # availability

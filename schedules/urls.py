@@ -1,5 +1,5 @@
 from django.conf.urls import url, include
-from schedules.views import CurrentSchedules, DayOfTheWeekList, WorkDayList, \
+from schedules.views import CurrentSchedules, WorkDayList, \
     ScheduleDetail, WorkDayDetail, EmployeeShiftsByMonth, \
     ListCreateShift, ShiftWeekList
 
@@ -12,8 +12,8 @@ urlpatterns = [
     url(r'^weekshift/$', ShiftWeekList.as_view(),
         name="week_shift_by_employee"),
 
-    url(r'^daysoftheweek/$', DayOfTheWeekList.as_view(),
-        name="days_of_the_week"),
+    # url(r'^daysoftheweek/$', DayOfTheWeekList.as_view(),
+    #     name="days_of_the_week"),
     url(r'^current/$', CurrentSchedules.as_view(), name="current_schedule"),
     url(r'^(?P<pk>\d+)/$', ScheduleDetail.as_view(), name="schedule_detail"),
 

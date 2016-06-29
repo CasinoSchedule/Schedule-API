@@ -3,18 +3,6 @@ import datetime
 from profiles.models import ManagerProfile, EmployeeProfile
 
 
-class DayOfWeek(models.Model):
-    """
-    One for each day of the week.
-    """
-    day = models.CharField(max_length=10, unique=True)
-    is_weekend = models.BooleanField()
-    python_int = models.IntegerField()
-
-    def __str__(self):
-        return self.day
-
-
 # NOTE: I am not sure yet if schedules will be unique for each period, or will
 # add another identifier so that there can be multiple schedules for each day.
 # For now I will make the slightly sketchy assumption that they are unique.
@@ -57,8 +45,6 @@ class WorkDay(models.Model):
     """
 
     day_date = models.DateField(unique=True)
-
-    day_of_the_week = models.ForeignKey(DayOfWeek)
 
     # Must have schedule so they are created together.
     schedule = models.ForeignKey(Schedule)

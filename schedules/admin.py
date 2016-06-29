@@ -1,10 +1,5 @@
 from django.contrib import admin
-from schedules.models import DayOfWeek, WorkDay, Schedule, Shift
-
-
-@admin.register(DayOfWeek)
-class DayOfWeekAdmin(admin.ModelAdmin):
-    list_display = ("id", "day", "is_weekend", "python_int")
+from schedules.models import WorkDay, Schedule, Shift
 
 
 @admin.register(Schedule)
@@ -14,7 +9,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 
 @admin.register(WorkDay)
 class WorkDayAdmin(admin.ModelAdmin):
-    list_display = ("id", "day_date", "day_of_the_week", "schedule")
+    list_display = ("id", "day_date", "schedule")
 
 
 @admin.register(Shift)

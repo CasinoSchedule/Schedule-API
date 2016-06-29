@@ -8,8 +8,8 @@ from django.db.models import Count
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
-from schedules.models import Schedule, DayOfWeek, WorkDay, Shift
-from schedules.serializers import DayOfWeekSerializer, ScheduleSerializer, \
+from schedules.models import Schedule, WorkDay, Shift
+from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer
 
@@ -26,10 +26,7 @@ def create_schedule(monday):
 
     for i in range(7):
         date = monday + (one_day * i)
-        day = DayOfWeek.objects.get(
-            python_int=date.weekday()
-        )
-        WorkDay.objects.create(day_date=date, day_of_the_week=day,
+        WorkDay.objects.create(day_date=date,
                                schedule=new_schedule)
     return new_schedule
 
@@ -137,9 +134,9 @@ class ScheduleDetail(generics.RetrieveAPIView):
     queryset = Schedule.objects.all()
 
 
-class DayOfTheWeekList(generics.ListAPIView):
-    serializer_class = DayOfWeekSerializer
-    queryset = DayOfWeek.objects.all()
+# class DayOfTheWeekList(generics.ListAPIView):
+#     serializer_class = DayOfWeekSerializer
+#     queryset = DayOfWeek.objects.all()
 
 
 class WorkDayList(generics.ListAPIView):
