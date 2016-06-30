@@ -57,3 +57,12 @@ class EmployeeShiftScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmployeeProfile
         fields = "__all__"
+
+
+class ShiftByDateSerializer(serializers.ModelSerializer):
+
+    day = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Shift
+        fields = "__all__"

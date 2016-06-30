@@ -11,7 +11,8 @@ from profiles.models import EmployeeProfile
 from schedules.models import Schedule, WorkDay, Shift
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
-    EmployeeShiftScheduleSerializer, MultipleShiftSerializer
+    EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
+    ShiftByDateSerializer
 
 
 def create_schedule(monday):
@@ -92,9 +93,18 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
         # """ placeholder """
         # qs = []
         # for i in range(42):
-        #     current = start + datetime.timedelta(days=i)
+        #     current = start_day + datetime.timedelta(days=i)
         #     shift = Shift.objects.filter(day__day_date=current).first()
-        #     qs.append(shift)
+        #     if shift:
+        #         qs.append(shift)
+        #     else:
+        #         qs.append({"calendar_date": current,
+        #                    "starting_time": None,
+        #                    "length": None,
+        #                    "employee": None,
+        #                    "end_time": None,
+        #                    "day": None
+        #                    })
         return qs
 
 
@@ -174,6 +184,20 @@ class ShiftCreateMany(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ShiftCreateByDate(generics.CreateAPIView):
+    """
+    Create a Shift object using a date, rather than a WorkDay id number.
+    example: {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1}
+    """
+    queryset = Shift.objects.all()
+    serializer_class = ShiftByDateSerializer
+
+    def perform_create(self, serializer):
+        date = self.request.data["day"]
+        day = WorkDay.objects.get(day_date=date)
+        serializer.save(day=day)
 
 
 class CurrentSchedules(generics.ListAPIView):
