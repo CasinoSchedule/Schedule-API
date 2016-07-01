@@ -4,6 +4,7 @@ import datetime
 import calendar
 from rest_framework.response import Response
 from django.db.models import Count
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 
@@ -12,8 +13,9 @@ from schedules.models import Schedule, WorkDay, Shift
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
-    ShiftByDateSerializer
+    ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer
 
+from schedules.twilio_functions import twilio_shift
 
 def create_schedule(monday):
     """
@@ -50,8 +52,14 @@ def next_monday(date):
 def get_or_create_schedule(date):
     """
     Retrieve or create the schedule that contains the date argument.
+    date param is a string, ie. "2016-6-20"
     """
-    monday = most_recent_monday(date)
+    dates = date.split("-")
+    dates = [int(x) for x in dates]
+    working_date = datetime.date(dates[0], dates[1], dates[2])
+
+
+    monday = most_recent_monday(working_date)
     work_day = WorkDay.objects.filter(day_date=monday).first()
 
     if work_day:
@@ -60,6 +68,16 @@ def get_or_create_schedule(date):
         current_schedule = create_schedule(monday)
 
     return current_schedule
+
+
+def phone_notify_employees(data):
+    # Add shift information later.
+
+    employee_ids = set([x['employee'] for x in data])
+    for employee in EmployeeProfile.objects.filter(id__in=employee_ids,
+                                           phone_notifications=True):
+        num = employee.phone_number
+        twilio_shift(num)
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
@@ -105,7 +123,7 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
         #                    "end_time": None,
         #                    "day": None
         #                    })
-        return qs
+        return qs.order_by("day__day_date")
 
 
 class ListCreateShift(generics.ListCreateAPIView):
@@ -134,10 +152,12 @@ class ShiftWeekList(generics.ListAPIView):
         if not self.request.query_params.get("date"):
             return []
 
-        dates = self.request.query_params["date"].split("-")
-        dates = [int(x) for x in dates]
-        working_date = datetime.date(dates[0], dates[1], dates[2])
-        current_schedule = get_or_create_schedule(working_date)
+        # dates = self.request.query_params["date"].split("-")
+        # dates = [int(x) for x in dates]
+        # working_date = datetime.date(dates[0], dates[1], dates[2])
+        # current_schedule = get_or_create_schedule(working_date)
+
+        current_schedule = get_or_create_schedule(self.request.query_params["date"])
 
         days = current_schedule.workday_set.order_by("day_date")
         start = days.first().day_date
@@ -175,15 +195,46 @@ class ShiftCreateMany(APIView):
      ]
     """
 
-    serializer_class = MultipleShiftSerializer
-    queryset = Shift.objects.all()
-
     def post(self, request, format=None):
-        serializer = ShiftSerializer(data=request.data, many=True)
+        serializer = ShiftCreateSerializer(data=request.data, many=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ShiftCreateManyByDate(APIView):
+    """
+    Create multiple schedules with one POST request, using the date parameter.
+    Example: [
+    {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
+     {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
+     ]
+    """
+    # New schedules and WorkDays are created if needed.
+
+    def post(self, request, format=None):
+
+        updated_data = []
+        for item in request.data:
+            workday = WorkDay.objects.filter(day_date=item['day']).first()
+            if workday:
+                item['day'] = workday.id
+            else:
+                get_or_create_schedule(item['day'])
+                item['day'] = WorkDay.objects.get(day_date=item['day']).id
+
+            #item['day'] = WorkDay.objects.get(day_date=item['day']).id
+            updated_data.append(item)
+
+        serializer = ShiftCreateSerializer(data=updated_data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            phone_notify_employees(request.data)
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class ShiftCreateByDate(generics.CreateAPIView):
@@ -200,29 +251,42 @@ class ShiftCreateByDate(generics.CreateAPIView):
         serializer.save(day=day)
 
 
-class CurrentSchedules(generics.ListAPIView):
-    """
-    Return current and on_deck schedules. This view will check for the current
-    date and create the objects if they do not yet exist.
-    """
+class UserListCreate(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # permission_classes = [
+    #     permissions.AllowAny
+    # ]
 
-    serializer_class = ScheduleSerializer
 
-    def get_queryset(self):
-        qs = []
-        today = datetime.datetime.now().date()
-        current_schedule = get_or_create_schedule(today)
-        # switch other schedules from current to expired.
-        # set this schedule to the new current.
-        current_schedule.status = "current"
+class UserDetail(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-        second_date = today + datetime.timedelta(days=7)
-        second_schedule = get_or_create_schedule(second_date)
-        second_schedule.status = "on_deck"
 
-        qs.append(current_schedule)
-        qs.append(second_schedule)
-        return qs
+# class CurrentSchedules(generics.ListAPIView):
+#     """
+#     Return current and on_deck schedules. This view will check for the current
+#     date and create the objects if they do not yet exist.
+#     """
+#
+#     serializer_class = ScheduleSerializer
+#
+#     def get_queryset(self):
+#         qs = []
+#         today = datetime.datetime.now().date()
+#         current_schedule = get_or_create_schedule(today)
+#         # switch other schedules from current to expired.
+#         # set this schedule to the new current.
+#         current_schedule.status = "current"
+#
+#         second_date = today + datetime.timedelta(days=7)
+#         second_schedule = get_or_create_schedule(second_date)
+#         second_schedule.status = "on_deck"
+#
+#         qs.append(current_schedule)
+#         qs.append(second_schedule)
+#         return qs
 
 
 # class ArbitraryDateSchedule(generics.RetrieveAPIView):

@@ -72,6 +72,7 @@ class Shift(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+
     @property
     def calendar_date(self):
         return self.day.day_date

@@ -36,8 +36,8 @@ class EmployeeProfile(models.Model):
 
     user = models.OneToOneField(User, null=True)
 
-    # first_name = models.CharField(max_length=255)
-    # last_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     # mi = models.CharField(max_length=1, null=True, blank=True)
     # cloudinary_image
 

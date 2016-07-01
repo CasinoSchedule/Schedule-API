@@ -1,8 +1,16 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
 from schedules.models import Schedule, WorkDay, Shift
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = "__all__"
 
 
 class WorkDaySerializer(serializers.ModelSerializer):
@@ -32,7 +40,17 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
                   "end_time", "day")
 
 
+class ShiftCreateSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model = Shift
+        fields = "__all__"
+
+
 class ShiftSerializer(serializers.ModelSerializer):
+
+    day = WorkDaySerializer(read_only=True)
 
     class Meta:
         model = Shift
@@ -40,9 +58,6 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class MultipleShiftSerializer(serializers.ModelSerializer):
-    # def __init__(self, *args, **kwargs):
-    #     many = kwargs.pop('many', True)
-    #     super(MultipleShiftSerializer, self).__init__(many=many, *args, **kwargs)
 
     class Meta:
         model = Shift
@@ -66,3 +81,19 @@ class ShiftByDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
         fields = "__all__"
+
+# class MultipleShiftByDateSerializer(serializers.ModelSerializer):
+#
+#     day = serializers.PrimaryKeyRelatedField(read_only=True)
+#
+#     class Meta:
+#         model = Shift
+#         fields = "__all__"
+#
+#     def create(self, validated_data):
+#         day = WorkDay.objects.get(day_date=validated_data["day"])
+#         return Shift(starting_time=validated_data["starting_time"],
+#                      day=day,
+#                      employee=validated_data["employee"])
+
+

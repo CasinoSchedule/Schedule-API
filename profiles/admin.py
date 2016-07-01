@@ -10,6 +10,6 @@ class ManagerProfileAdmin(admin.ModelAdmin):
 
 @admin.register(EmployeeProfile)
 class EmployeeProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "employee_id", "position_title",
+    list_display = ("id", "user", "first_name", "last_name", "employee_id", "position_title",
                     "phone_number", "email", "phone_notifications",
                     "email_notifications", "created_at", "modified_at")
