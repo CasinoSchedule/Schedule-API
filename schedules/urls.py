@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from schedules.views import WorkDayList, \
     ScheduleDetail, WorkDayDetail, EmployeeShiftsByMonth, \
     ListCreateShift, ShiftWeekList, ShiftCreateMany, ShiftRetrieveUpdateDelete, \
-    ShiftCreateByDate, ShiftCreateManyByDate
+    ShiftCreateByDate, ShiftCreateManyByDate, CustomShift
 
 urlpatterns = [
     url(r'^employeemonth/$', EmployeeShiftsByMonth.as_view(),
@@ -12,6 +12,7 @@ urlpatterns = [
         name="shift_retrieve_delete"),
     url(r'^shift/date/$', ShiftCreateByDate.as_view(), name="shift_create_by_date"),
     url(r'^shift/$', ListCreateShift.as_view(), name="list_create_shift"),
+    #url(r'^custom/$', CustomShift.as_view(), name="custom_shift"),
 
     url(r'^manyshift/$', ShiftCreateMany.as_view(), name="shift_create_many"),
     url(r'^manyshiftdate/$', ShiftCreateManyByDate.as_view(), name="multiple_shift_by_date"),
