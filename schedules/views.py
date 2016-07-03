@@ -17,6 +17,7 @@ from schedules.serializers import ScheduleSerializer, \
 
 from schedules.twilio_functions import twilio_shift
 
+
 def create_schedule(monday):
     """
     Create a schedule along with 7 WorkDay objects, starting from the monday
@@ -93,6 +94,9 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
 
     def get_queryset(self):
 
+        if not self.request.user.id:
+            return []
+
         year, month = int(self.request.query_params["year"]), int(self.request.query_params["month"])
         first_weekday = datetime.date(year, month, 1).weekday()
         preceding_days = (first_weekday + 1) % 7
@@ -134,8 +138,6 @@ class CustomShift(APIView):
         data = Shift.objects.first()
         answer = {str(data.calendar_date): "test"}
         return Response(answer)
-
-
 
 
 class ListCreateShift(generics.ListCreateAPIView):
