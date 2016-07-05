@@ -73,12 +73,26 @@ def get_or_create_schedule(date):
 
 def phone_notify_employees(data):
     # Add shift information later.
+    # day
+    # starting_time
 
     employee_ids = set([x['employee'] for x in data])
     for employee in EmployeeProfile.objects.filter(id__in=employee_ids,
                                            phone_notifications=True):
+        message = 'You have new shifts posted.\n'
+        matches = [x for x in data if x['employee'] == employee.id]
+        for match in matches:
+            message += "{}: {}\n".format(
+                WorkDay.objects.get(id=match['day']).day_date,
+                match['starting_time']
+            )
+        # info = [x['day'] + ': ' + x['starting_time']
+        #         for x in data
+        #         if x['employee'] == employee.id]
+        # message = ' '.join(info)
+
         num = employee.phone_number
-        twilio_shift(num)
+        twilio_shift(num, message)
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):

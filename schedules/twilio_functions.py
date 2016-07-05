@@ -2,7 +2,7 @@ import os
 from twilio.rest import TwilioRestClient
 
 
-def twilio_shift(number):
+def twilio_shift(number, message):
     """
     number is a 10 digit phone number string.
     """
@@ -11,6 +11,6 @@ def twilio_shift(number):
 
     client = TwilioRestClient(account_sid, auth_token)
 
-    message = client.messages.create(body="You have a new schedule",
+    message = client.messages.create(body=message,
                                      to="+1" + number,
                                      from_="+17602538062")
