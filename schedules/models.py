@@ -75,9 +75,10 @@ class Shift(models.Model):
 
     @property
     def calendar_date(self):
-        return "{}-{}-{}".format(self.day.day_date.year, self.day.day_date.month, self.day.day_date.day)
-        #return self.day.day_date
-
+        # return "{}-{}-{}".format(self.day.day_date.year,
+        #                          self.day.day_date.month,
+        #                          self.day.day_date.day)
+        return self.day.day_date
 
     @property
     def end_time(self):
