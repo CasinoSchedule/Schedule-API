@@ -127,6 +127,8 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
 
         return qs.order_by("day__day_date")
 
+        # Filter by employee for placeholder!
+
         # """ placeholder """
         # qs = []
         # for i in range(42):
