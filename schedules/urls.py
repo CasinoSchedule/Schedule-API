@@ -18,7 +18,7 @@ urlpatterns = [
     #url(r'^custom/$', CustomShift.as_view(), name="custom_shift"),
 
     url(r'^manyshift/$', ShiftCreateMany.as_view(), name="shift_create_many"),
-    url(r'^manyshiftdate/$', ShiftCreateManyByDate.as_view(), name="multiple_shift_by_date"),
+    url(r'^shift/many$', ShiftCreateManyByDate.as_view(), name="multiple_shift_by_date"),
 
     url(r'^weekshift/$', ShiftWeekList.as_view(),
         name="schedule_shifts"),
