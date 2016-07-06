@@ -170,29 +170,30 @@ class EmployeeShiftsByMonthActual(generics.ListAPIView):
         start_day = datetime.date(year, month, 1) - datetime.timedelta(days=preceding_days)
         final_day = datetime.date(year, month, month_days) + datetime.timedelta(days=trailing_days)
 
-        qs = self.request.user.employeeprofile.shift_set.filter(
-            day__day_date__gte=start_day,
-            day__day_date__lte=final_day
-        )
+        # qs = self.request.user.employeeprofile.shift_set.filter(
+        #     day__day_date__gte=start_day,
+        #     day__day_date__lte=final_day
+        # )
+        #
+        # return qs.order_by("day__day_date")
 
-        return qs.order_by("day__day_date")
+        """ placeholder """
+        qs = []
+        for i in range(42):
+            current = start_day + datetime.timedelta(days=i)
+            shift = Shift.objects.filter(day__day_date=current).first()
+            if shift:
 
-        # """ placeholder """
-        # qs = []
-        # for i in range(42):
-        #     current = start_day + datetime.timedelta(days=i)
-        #     shift = Shift.objects.filter(day__day_date=current).first()
-        #     if shift:
-        #         qs.append(shift)
-        #     else:
-        #         qs.append({"calendar_date": current,
-        #                    "starting_time": None,
-        #                    "length": None,
-        #                    "employee": None,
-        #                    "end_time": None,
-        #                    "day": None
-        #                    })
-        # return qs
+                qs.append(shift)
+            else:
+                qs.append({"calendar_date": current,
+                           "starting_time": None,
+                           "length": None,
+                           "employee": None,
+                           "end_time": None,
+                           "day": None
+                           })
+        return qs
 
 
 class CustomShift(APIView):
