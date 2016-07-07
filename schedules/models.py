@@ -66,6 +66,8 @@ class Shift(models.Model):
     day = models.ForeignKey(WorkDay)
     employee = models.ForeignKey(EmployeeProfile)
 
+    visible = models.BooleanField(default=False)
+
     # location = models.CharField(max_length=255, blank=True, null=True)
     # skills_required = models.CharField(max_length=255)
     # options_visible = models.BooleanField(default=False)

@@ -314,7 +314,7 @@ class ShiftCreateManyByDate(APIView):
         serializer = ShiftCreateSerializer(data=updated_data, many=True)
         if serializer.is_valid():
             serializer.save()
-            phone_notify_employees(request.data)
+            #phone_notify_employees(request.data)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
@@ -333,6 +333,17 @@ class ShiftCreateByDate(generics.CreateAPIView):
         date = self.request.data["day"]
         day = WorkDay.objects.get(day_date=date)
         serializer.save(day=day)
+
+
+class ActivateShiftWeek(APIView):
+    """
+    POST a date. All shifts for that week will be made visible to employees
+    and they will be notified.
+    """
+
+    def post(self, request, format=None):
+        schedule = get_or_create_schedule(self.request['date'])
+
 
 
 class UserListCreate(generics.ListCreateAPIView):
