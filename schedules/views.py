@@ -285,7 +285,11 @@ class ShiftCreateMany(APIView):
 
 class ShiftCreateManyByDate(APIView):
     """
-    Create multiple schedules with one POST request, using the date parameter.
+    Create and/or update multiple schedules with one POST request, using the
+     date parameter.
+
+     Currently an employee can only have one shift per day. This will probably
+     change in the future.
     Example: [
     {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
      {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
