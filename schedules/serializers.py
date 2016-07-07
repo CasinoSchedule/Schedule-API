@@ -42,10 +42,20 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
 
 class ShiftCreateSerializer(serializers.ModelSerializer):
 
-
     class Meta:
         model = Shift
         fields = "__all__"
+
+    def create(self, validated_data):
+
+        shift = Shift.objects.filter(employee=validated_data['employee'],
+                                  day=validated_data['day']).first()
+        if shift:
+            setattr(shift, 'starting_time', validated_data['starting_time'])
+            shift.save()
+        else:
+            shift = Shift.objects.create(**validated_data)
+        return shift
 
 
 class ShiftSerializer(serializers.ModelSerializer):

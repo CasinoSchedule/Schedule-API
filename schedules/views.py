@@ -293,6 +293,7 @@ class ShiftCreateManyByDate(APIView):
     """
     # New schedules and WorkDays are created if needed.
 
+
     def post(self, request, format=None):
 
         updated_data = []
@@ -304,7 +305,6 @@ class ShiftCreateManyByDate(APIView):
                 get_or_create_schedule(item['day'])
                 item['day'] = WorkDay.objects.get(day_date=item['day']).id
 
-            #item['day'] = WorkDay.objects.get(day_date=item['day']).id
             updated_data.append(item)
 
         serializer = ShiftCreateSerializer(data=updated_data, many=True)
