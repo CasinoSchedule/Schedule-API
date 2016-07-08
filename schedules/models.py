@@ -90,25 +90,28 @@ class Shift(models.Model):
                                )
         return dt.time()
 
-
-# class EOList(models.Model):
-#     position = models.CharField(max_length=50, null=True, blank=True)
 #
-#     # Not sure about start time. Might want to go by day instead.
+# class EOList(models.Model):
+#     day = models.ForeignKey(WorkDay)
+#
+#     #shift = models.CharField(max_length=50, null=True, blank=True)
 #
 #     created_at = models.DateTimeField(auto_now_add=True)
 #     modified_at = models.DateTimeField(auto_now=True)
 #
 #
 # class EOEntry(models.Model):
+#     """
+#     status can be ['submitted', 'approved', 'removed']
+#     """
 #     eo_list = models.ForeignKey(EOList)
-#     employee = models.ForeignKey(EmployeeProfile)
+#     shift = models.ForeignKey(Shift)
 #     status = models.CharField(max_length=25, default="submitted")
 #     # position = models.IntegerField(null=True, blank=True)
 #
 #     created_at = models.DateTimeField(auto_now_add=True)
 #     modified_at = models.DateTimeField(auto_now=True)
-#
+
 #
 # class CallOut(models.Model):
 #     employee = models.ForeignKey(EmployeeProfile)
