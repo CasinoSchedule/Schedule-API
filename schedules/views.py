@@ -294,8 +294,12 @@ class ActivateShiftWeek(APIView):
                                       ).all()
 
         phone_notify_employees(shifts)
+        amount = shifts.count()
         shifts.update(visible=True)
-        return Response(status=status.HTTP_200_OK)
+        return Response(
+            {'amount updated': amount},
+            status=status.HTTP_200_OK
+        )
 
 
 class UserListCreate(generics.ListCreateAPIView):
