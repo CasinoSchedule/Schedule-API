@@ -115,29 +115,11 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
 
         qs = self.request.user.employeeprofile.shift_set.filter(
             day__day_date__gte=start_day,
-            day__day_date__lte=final_day
+            day__day_date__lte=final_day,
+            visible=True
         )
 
         return qs.order_by("day__day_date")
-
-        # Filter by employee for placeholder!
-
-        # """ placeholder """
-        # qs = []
-        # for i in range(42):
-        #     current = start_day + datetime.timedelta(days=i)
-        #     shift = Shift.objects.filter(day__day_date=current).first()
-        #     if shift:
-        #         qs.append(shift)
-        #     else:
-        #         qs.append({"calendar_date": current,
-        #                    "starting_time": None,
-        #                    "length": None,
-        #                    "employee": None,
-        #                    "end_time": None,
-        #                    "day": None
-        #                    })
-        # return qs
 
 
 class CustomShift(APIView):
