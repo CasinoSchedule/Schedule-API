@@ -14,5 +14,5 @@ class WorkDayAdmin(admin.ModelAdmin):
 
 @admin.register(Shift)
 class ShiftAdmin(admin.ModelAdmin):
-    list_display = ("id", "starting_time", "length", "day", "employee",)
+    list_display = ("id", "visible", "starting_time", "length", "day", "employee",)
 

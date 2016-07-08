@@ -72,26 +72,19 @@ def get_or_create_schedule(date):
 
 
 def phone_notify_employees(data):
-    # Add shift information later.
-    # day
-    # starting_time
 
-    employee_ids = set([x['employee'] for x in data])
-    for employee in EmployeeProfile.objects.filter(id__in=employee_ids,
-                                           phone_notifications=True):
+    employee_ids = set([x.employee.id for x in data])
+    for person in EmployeeProfile.objects.filter(id__in=employee_ids,
+                                           phone_notifications=True).all():
         message = 'You have new shifts posted.\n'
-        matches = [x for x in data if x['employee'] == employee.id]
+        matches = [x for x in data if x.employee.id == person.id]
         for match in matches:
             message += "{}: {}\n".format(
-                WorkDay.objects.get(id=match['day']).day_date,
-                match['starting_time']
+                WorkDay.objects.get(id=match.day.id).day_date,
+                match.starting_time
             )
-        # info = [x['day'] + ': ' + x['starting_time']
-        #         for x in data
-        #         if x['employee'] == employee.id]
-        # message = ' '.join(info)
 
-        num = employee.phone_number
+        num = person.phone_number
         twilio_shift(num, message)
 
 
@@ -145,57 +138,6 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
         #                    "day": None
         #                    })
         # return qs
-
-
-class EmployeeShiftsByMonthActual(generics.ListAPIView):
-    """
-    Takes a month and year and returns schedules for the requesting employee.
-    The time frame is an expanded six week calendar view of the month that will
-    start from Sunday in the prior month and run into the following month.
-
-
-    example GET: schedules/employeemonth/?month=6&year=2016
-    """
-    serializer_class = EmployeeShiftSerializer
-
-    def get_queryset(self):
-
-        if not self.request.user.id:
-            return []
-
-        year, month = int(self.request.query_params["year"]), int(self.request.query_params["month"])
-        first_weekday = datetime.date(year, month, 1).weekday()
-        preceding_days = (first_weekday + 1) % 7
-        month_days = calendar.monthrange(year, month)[1]
-        trailing_days = 42 - month_days - preceding_days
-
-        start_day = datetime.date(year, month, 1) - datetime.timedelta(days=preceding_days)
-        final_day = datetime.date(year, month, month_days) + datetime.timedelta(days=trailing_days)
-
-        # qs = self.request.user.employeeprofile.shift_set.filter(
-        #     day__day_date__gte=start_day,
-        #     day__day_date__lte=final_day
-        # )
-        #
-        # return qs.order_by("day__day_date")
-
-        """ placeholder """
-        qs = []
-        for i in range(42):
-            current = start_day + datetime.timedelta(days=i)
-            shift = Shift.objects.filter(day__day_date=current).first()
-            if shift:
-
-                qs.append(shift)
-            else:
-                qs.append({"calendar_date": current,
-                           "starting_time": None,
-                           "length": None,
-                           "employee": None,
-                           "end_time": None,
-                           "day": None
-                           })
-        return qs
 
 
 class CustomShift(APIView):
@@ -339,11 +281,21 @@ class ActivateShiftWeek(APIView):
     """
     POST a date. All shifts for that week will be made visible to employees
     and they will be notified.
+    example: {"date": "2016-6-20"}
     """
 
     def post(self, request, format=None):
-        schedule = get_or_create_schedule(self.request['date'])
+        schedule = get_or_create_schedule(request.data['date'])
+        first = schedule.workday_set.first()
+        last = schedule.workday_set.last()
+        shifts = Shift.objects.filter(day__day_date__gte=first.day_date,
+                                      day__day_date__lte=last.day_date,
+                                      visible=False
+                                      ).all()
 
+        phone_notify_employees(shifts)
+        shifts.update(visible=True)
+        return Response(status=status.HTTP_200_OK)
 
 
 class UserListCreate(generics.ListCreateAPIView):
