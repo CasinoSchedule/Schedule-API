@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
-from schedules.models import Schedule, WorkDay, Shift
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -92,18 +92,26 @@ class ShiftByDateSerializer(serializers.ModelSerializer):
         model = Shift
         fields = "__all__"
 
-# class MultipleShiftByDateSerializer(serializers.ModelSerializer):
-#
-#     day = serializers.PrimaryKeyRelatedField(read_only=True)
-#
-#     class Meta:
-#         model = Shift
-#         fields = "__all__"
-#
-#     def create(self, validated_data):
-#         day = WorkDay.objects.get(day_date=validated_data["day"])
-#         return Shift(starting_time=validated_data["starting_time"],
-#                      day=day,
-#                      employee=validated_data["employee"])
+
+class EOShiftSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Shift
+        fields = ('employee', 'starting_time')
 
 
+class EOEntrySerializer(serializers.ModelSerializer):
+
+    shift = EOShiftSerializer(read_only=True)
+
+    class Meta:
+        model = EOEntry
+        fields = ('id', 'eo_list', 'status', 'shift')
+
+
+class EOListSerializer(serializers.ModelSerializer):
+    eo_entries = EOEntrySerializer(read_only=True, many=True)
+
+    class Meta:
+        model = EOList
+        fields = "__all__"

@@ -9,11 +9,12 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
-from schedules.models import Schedule, WorkDay, Shift
+from schedules.models import Schedule, WorkDay, Shift, EOList
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
-    ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer
+    ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer, \
+    EOListSerializer, EOEntrySerializer
 
 from schedules.twilio_functions import twilio_shift
 
@@ -86,6 +87,14 @@ def phone_notify_employees(data):
 
         num = person.phone_number
         twilio_shift(num, message)
+
+
+def date_string_to_datetime(date_string):
+    """
+    Turns a date string like '2016-6-20' into a Date object.
+    """
+    y, m, d = [int(x) for x in date_string.split('-')]
+    return datetime.date(y, m, d)
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
@@ -238,7 +247,6 @@ class ShiftCreateManyByDate(APIView):
         serializer = ShiftCreateSerializer(data=updated_data, many=True)
         if serializer.is_valid():
             serializer.save()
-            #phone_notify_employees(request.data)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
@@ -297,43 +305,36 @@ class UserDetail(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
 
 
-# class CurrentSchedules(generics.ListAPIView):
-#     """
-#     Return current and on_deck schedules. This view will check for the current
-#     date and create the objects if they do not yet exist.
-#     """
-#
-#     serializer_class = ScheduleSerializer
-#
-#     def get_queryset(self):
-#         qs = []
-#         today = datetime.datetime.now().date()
-#         current_schedule = get_or_create_schedule(today)
-#         # switch other schedules from current to expired.
-#         # set this schedule to the new current.
-#         current_schedule.status = "current"
-#
-#         second_date = today + datetime.timedelta(days=7)
-#         second_schedule = get_or_create_schedule(second_date)
-#         second_schedule.status = "on_deck"
-#
-#         qs.append(current_schedule)
-#         qs.append(second_schedule)
-#         return qs
+class RetrieveEOList(APIView):
+    """
+    Post a date to get the EO list for that day. Will add more parameters
+    later for department and shift.
+    """
+
+    def post(self, request, format=None):
+        date = date_string_to_datetime(request.data['date'])
+        workday = WorkDay.objects.filter(day_date=date).first()
+
+        if not workday:
+            get_or_create_schedule(request.data['date'])
+
+        # Only one shift per workday to start.
+        eo_list = EOList.objects.filter(day=workday).first()
+        if not eo_list:
+            eo_list = EOList.objects.create(day=workday)
+        serializer = EOListSerializer(eo_list)
+        return Response(serializer.data)
 
 
-# class ArbitraryDateSchedule(generics.RetrieveAPIView):
-#     """
-#     Takes a date request in a querystring and returns the schedule for that
-#     week.
-#     Example: schedules/bydate/?date=2015-01-01
-#     """
-#
-#     serializer_class = ScheduleSerializer
-#
-#     def get_queryset(self):
-#
-#         date_requested = self.request.query_params["date"]
-#
-#         a = 1
-#         return super().get_queryset()
+class CreateEOEntry(generics.CreateAPIView):
+    """
+    Create a new entry on an EO list. POST the shift and EO list ids.
+
+    Note: I need to add a check requiring the dates to match.
+    """
+
+    serializer_class = EOEntrySerializer
+
+
+
+

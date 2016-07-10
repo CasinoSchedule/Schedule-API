@@ -2,7 +2,8 @@ from django.conf.urls import url, include
 from schedules.views import WorkDayList, \
     ScheduleDetail, WorkDayDetail, EmployeeShiftsByMonth, \
     ListCreateShift, ShiftWeekList, ShiftCreateMany, ShiftRetrieveUpdateDelete, \
-    ShiftCreateByDate, ShiftCreateManyByDate, CustomShift, ActivateShiftWeek
+    ShiftCreateByDate, ShiftCreateManyByDate, CustomShift, ActivateShiftWeek, \
+    RetrieveEOList, CreateEOEntry
 
 urlpatterns = [
     url(r'^employeemonth/$', EmployeeShiftsByMonth.as_view(),
@@ -32,4 +33,9 @@ urlpatterns = [
     url(r'^workday/$', WorkDayList.as_view(), name="work_days"),
     url(r'^workday/(?P<pk>\d+)/$', WorkDayDetail.as_view(),
         name="workday_detail"),
+
+    url(r'^eolist/retrieve/$', RetrieveEOList.as_view(), name='retrieve_eo_list'),
+    url(r'^eolist/entry/$', CreateEOEntry.as_view(),
+        name='create_eo_entry'),
+
 ]

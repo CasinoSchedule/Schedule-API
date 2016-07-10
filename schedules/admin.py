@@ -1,5 +1,5 @@
 from django.contrib import admin
-from schedules.models import WorkDay, Schedule, Shift
+from schedules.models import WorkDay, Schedule, Shift, EOList
 
 
 @admin.register(Schedule)
@@ -15,4 +15,9 @@ class WorkDayAdmin(admin.ModelAdmin):
 @admin.register(Shift)
 class ShiftAdmin(admin.ModelAdmin):
     list_display = ("id", "visible", "starting_time", "length", "day", "employee",)
+
+
+@admin.register(EOList)
+class EOListAdmin(admin.ModelAdmin):
+    list_display = ("id", "day", "amount", "created_at", "modified_at")
 

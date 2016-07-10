@@ -90,27 +90,38 @@ class Shift(models.Model):
                                )
         return dt.time()
 
-#
-# class EOList(models.Model):
-#     day = models.ForeignKey(WorkDay)
-#
-#     #shift = models.CharField(max_length=50, null=True, blank=True)
-#
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     modified_at = models.DateTimeField(auto_now=True)
-#
-#
-# class EOEntry(models.Model):
-#     """
-#     status can be ['submitted', 'approved', 'removed']
-#     """
-#     eo_list = models.ForeignKey(EOList)
-#     shift = models.ForeignKey(Shift)
-#     status = models.CharField(max_length=25, default="submitted")
-#     # position = models.IntegerField(null=True, blank=True)
-#
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     modified_at = models.DateTimeField(auto_now=True)
+
+class EOList(models.Model):
+    day = models.ForeignKey(WorkDay)
+
+    # Add later for day, swing, grave
+    # work_period = models.CharField(max_length=50, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def amount(self):
+        return self.eoentry_set.count()
+
+    def __str__(self):
+        return "{}, {}".format(self.id, self.day.day_date)
+
+
+class EOEntry(models.Model):
+    """
+    status can be ['submitted', 'approved', 'removed']
+    """
+    eo_list = models.ForeignKey(EOList)
+    shift = models.ForeignKey(Shift)
+    status = models.CharField(max_length=25, default="submitted")
+    # position = models.IntegerField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        default_related_name = 'eo_entries'
 
 #
 # class CallOut(models.Model):
