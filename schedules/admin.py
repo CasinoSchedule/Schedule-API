@@ -19,5 +19,5 @@ class ShiftAdmin(admin.ModelAdmin):
 
 @admin.register(EOList)
 class EOListAdmin(admin.ModelAdmin):
-    list_display = ("id", "day", "amount", "created_at", "modified_at")
+    list_display = ("id", "day", "created_at", "modified_at")
 

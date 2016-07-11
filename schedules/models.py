@@ -100,9 +100,9 @@ class EOList(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-    @property
-    def amount(self):
-        return self.eoentry_set.count()
+    # @property
+    # def amount(self):
+    #     return self.eoentry_set.count()
 
     def __str__(self):
         return "{}, {}".format(self.id, self.day.day_date)
