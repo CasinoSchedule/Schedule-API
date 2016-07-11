@@ -124,8 +124,8 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
 
         qs = self.request.user.employeeprofile.shift_set.filter(
             day__day_date__gte=start_day,
-            day__day_date__lte=final_day
-            #visible=True
+            day__day_date__lte=final_day,
+            visible=True
         )
 
         return qs.order_by("day__day_date")

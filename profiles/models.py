@@ -34,10 +34,11 @@ class ManagerProfile(models.Model):
 
 class EmployeeProfile(models.Model):
 
-    user = models.OneToOneField(User, null=True)
+    user = models.OneToOneField(User, null=True, blank=True)
 
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    photo_url = models.URLField(blank=True, null=True)
     # mi = models.CharField(max_length=1, null=True, blank=True)
     # cloudinary_image
 
@@ -50,8 +51,8 @@ class EmployeeProfile(models.Model):
     # usual_shift: grave, swing, day
 
     # Validate these in form
-    phone_number = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
+    email = models.CharField(max_length=255, blank=True, null=True)
 
     phone_notifications = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=False)

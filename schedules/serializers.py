@@ -50,6 +50,8 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 
         shift = Shift.objects.filter(employee=validated_data['employee'],
                                   day=validated_data['day']).first()
+
+        # Delete shift if starting time is ""
         if shift:
             setattr(shift, 'starting_time', validated_data['starting_time'])
             shift.save()

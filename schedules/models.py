@@ -100,10 +100,6 @@ class EOList(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-    # @property
-    # def amount(self):
-    #     return self.eoentry_set.count()
-
     def __str__(self):
         return "{}, {}".format(self.id, self.day.day_date)
 
@@ -124,11 +120,10 @@ class EOEntry(models.Model):
         default_related_name = 'eo_entries'
         unique_together = ('shift', 'eo_list')
 
-#
-# class CallOut(models.Model):
-#     employee = models.ForeignKey(EmployeeProfile)
-#     shift = models.ForeignKey(Shift)
-#
+
+class CallOut(models.Model):
+    shift = models.OneToOneField(Shift)
+
 #
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)
