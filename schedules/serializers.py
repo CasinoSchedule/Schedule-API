@@ -102,8 +102,8 @@ class EOShiftSerializer(serializers.ModelSerializer):
 
 class EOEntrySerializer(serializers.ModelSerializer):
 
-    shift = serializers.PrimaryKeyRelatedField(read_only=True)
-    eo_list = serializers.PrimaryKeyRelatedField(read_only=True)
+    #shift = serializers.ReadOnlyField()
+    #eo_list = serializers.ReadOnlyField()
 
     class Meta:
         model = EOEntry
