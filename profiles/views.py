@@ -13,7 +13,7 @@ Views for updating and creating profiles
 """
 
 
-class EmployeeProfileListCreateView(generics.ListAPIView):
+class EmployeeProfileListCreateView(generics.ListCreateAPIView):
     queryset = EmployeeProfile.objects.all()
     serializer_class = EmployeeProfileSerializer
 
