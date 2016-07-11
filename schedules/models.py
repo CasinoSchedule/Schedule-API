@@ -122,6 +122,7 @@ class EOEntry(models.Model):
 
     class Meta:
         default_related_name = 'eo_entries'
+        unique_together = ('shift', 'eo_list')
 
 #
 # class CallOut(models.Model):

@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
-from schedules.models import Schedule, WorkDay, Shift, EOList
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
@@ -332,8 +332,18 @@ class CreateEOEntry(generics.CreateAPIView):
 
     Note: I need to add a check requiring the dates to match.
     """
-
+    queryset = EOEntry.objects.all()
     serializer_class = EOEntrySerializer
+
+    def perform_create(self, serializer):
+
+        shift_id = self.request.data['shift']
+        eo_list_id = self.request.data['eo_list']
+
+        serializer.save(shift=Shift.objects.get(pk=shift_id),
+                        eo_list=EOList.objects.get(pk=eo_list_id))
+
+
 
 
 
