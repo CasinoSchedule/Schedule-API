@@ -10,12 +10,12 @@ import logging
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
-from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
     ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer, \
-    EOListSerializer, EOEntrySerializer
+    EOListSerializer, EOEntrySerializer, CallOutSerializer
 
 from schedules.twilio_functions import twilio_shift
 
@@ -346,6 +346,16 @@ class CreateEOEntry(generics.CreateAPIView):
 
         serializer.save(shift=Shift.objects.get(pk=shift_id),
                         eo_list=EOList.objects.get(pk=eo_list_id))
+
+
+class CallOutListCreate(generics.ListCreateAPIView):
+    queryset = CallOut.objects.all()
+    serializer_class = CallOutSerializer
+
+
+class CallOutDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CallOut.objects.all()
+    serializer_class = CallOutSerializer
 
 
 #

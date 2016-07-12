@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
-from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -118,3 +118,10 @@ class EOListSerializer(serializers.ModelSerializer):
     class Meta:
         model = EOList
         fields = "__all__"
+
+
+class CallOutSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CallOut
+        fields = '__all__'

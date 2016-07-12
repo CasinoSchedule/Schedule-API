@@ -42,7 +42,7 @@ class EmployeeProfile(models.Model):
     # mi = models.CharField(max_length=1, null=True, blank=True)
     # cloudinary_image
 
-    employee_id = models.CharField(max_length=255)
+    employee_id = models.CharField(max_length=255, null=True, blank=True)
     position_title = models.CharField(max_length=255, null=True, blank=True)
 
     employment_status = models.ForeignKey(EmployeeStatus, null=True, blank=True)

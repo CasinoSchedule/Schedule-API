@@ -127,10 +127,16 @@ class CallOut(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-#
+
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)
-#     description = models.TextField()
+#     description = models.TextField(blank=True, null=True)
+#
+#
+# class Section(models.Model):
+#     area = models.ForeignKey(Area)
+#     title = models.CharField(max_length=255)
+#     description = models.TextField(blank=True, null=True)
 #
 #
 # class ShiftTrade(models.Model):
