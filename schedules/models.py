@@ -124,6 +124,9 @@ class EOEntry(models.Model):
 class CallOut(models.Model):
     shift = models.OneToOneField(Shift)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
 #
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)
