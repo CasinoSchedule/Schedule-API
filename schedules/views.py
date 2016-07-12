@@ -79,6 +79,7 @@ def get_or_create_schedule(date):
 def phone_notify_employees(data):
 
     employee_ids = set([x.employee.id for x in data])
+    logger.debug("employee ids: {}".format(len(employee_ids)))
     for person in EmployeeProfile.objects.filter(id__in=employee_ids,
                                            phone_notifications=True).all():
         message = 'You have new shifts posted.\n'
