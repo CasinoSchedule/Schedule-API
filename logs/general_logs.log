@@ -15,3 +15,13 @@
 [DEBUG] 2016-07-11 17:12:07,188 views Starting day: 2016-07-11
 [DEBUG] 2016-07-11 17:12:07,189 views Ending day: 2016-07-17
 [DEBUG] 2016-07-11 17:12:07,189 views amount: 7
+[DEBUG] 2016-07-11 17:20:32,491 views number shifts: 0
+[DEBUG] 2016-07-11 17:20:32,492 views employee ids: set()
+[DEBUG] 2016-07-11 17:20:32,496 views Starting day: 2016-07-11
+[DEBUG] 2016-07-11 17:20:32,497 views Ending day: 2016-07-17
+[DEBUG] 2016-07-11 17:20:32,497 views amount: 0
+[DEBUG] 2016-07-11 17:20:57,107 views number shifts: 4
+[DEBUG] 2016-07-11 17:20:57,116 views employee ids: {1, 2}
+[DEBUG] 2016-07-11 17:20:58,153 views Starting day: 2016-07-25
+[DEBUG] 2016-07-11 17:20:58,154 views Ending day: 2016-07-31
+[DEBUG] 2016-07-11 17:20:58,154 views amount: 4

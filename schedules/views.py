@@ -79,11 +79,16 @@ def get_or_create_schedule(date):
 def phone_notify_employees(data):
 
     employee_ids = set([x.employee.id for x in data])
-    logger.debug("employee ids: {}".format(len(employee_ids)))
+    logger.debug("employee ids: {}".format(employee_ids))
     for person in EmployeeProfile.objects.filter(id__in=employee_ids,
                                            phone_notifications=True).all():
+        logger.debug("person: {}".format(person))
+        logger.debug("person id: {}".format(person.id))
+        #logger.debug("person: {}".format(person))
+
         message = 'You have new shifts posted.\n'
         matches = [x for x in data if x.employee.id == person.id]
+        logger.debug("matches: {}".format(matches))
         for match in matches:
             message += "{}: {}\n".format(
                 WorkDay.objects.get(id=match.day.id).day_date,
