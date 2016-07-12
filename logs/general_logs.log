@@ -30,3 +30,26 @@
 [DEBUG] 2016-07-11 17:24:56,051 views Starting day: 2016-07-25
 [DEBUG] 2016-07-11 17:24:56,052 views Ending day: 2016-07-31
 [DEBUG] 2016-07-11 17:24:56,052 views amount: 0
+[DEBUG] 2016-07-12 01:20:46,252 views number shifts: 0
+[DEBUG] 2016-07-12 01:20:46,253 views employee ids: set()
+[DEBUG] 2016-07-12 01:20:46,258 views Starting day: 2016-07-25
+[DEBUG] 2016-07-12 01:20:46,258 views Ending day: 2016-07-31
+[DEBUG] 2016-07-12 01:20:46,258 views amount: 0
+[DEBUG] 2016-07-12 02:19:46,291 views number shifts: 9
+[DEBUG] 2016-07-12 02:19:46,310 views employee ids: {1, 2}
+[DEBUG] 2016-07-12 02:19:46,314 views person: aaron_work
+[DEBUG] 2016-07-12 02:19:46,314 views person id: 2
+[DEBUG] 2016-07-12 02:19:46,314 views matches: [<Shift: Shift object>, <Shift: Shift object>, <Shift: Shift object>, <Shift: Shift object>, <Shift: Shift object>, <Shift: Shift object>, <Shift: Shift object>]
+[DEBUG] 2016-07-12 02:19:47,371 views Starting day: 2016-08-15
+[DEBUG] 2016-07-12 02:19:47,371 views Ending day: 2016-08-21
+[DEBUG] 2016-07-12 02:19:47,371 views amount: 9
+[DEBUG] 2016-07-12 02:23:00,754 views number shifts: 0
+[DEBUG] 2016-07-12 02:23:00,756 views employee ids: set()
+[DEBUG] 2016-07-12 02:23:00,759 views Starting day: 2016-05-30
+[DEBUG] 2016-07-12 02:23:00,759 views Ending day: 2016-06-05
+[DEBUG] 2016-07-12 02:23:00,760 views amount: 0
+[DEBUG] 2016-07-12 02:23:25,470 views number shifts: 1
+[DEBUG] 2016-07-12 02:23:25,474 views employee ids: {1}
+[DEBUG] 2016-07-12 02:23:25,478 views Starting day: 2016-05-23
+[DEBUG] 2016-07-12 02:23:25,478 views Ending day: 2016-05-29
+[DEBUG] 2016-07-12 02:23:25,478 views amount: 1

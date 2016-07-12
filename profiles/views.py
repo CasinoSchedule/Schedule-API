@@ -18,6 +18,11 @@ class EmployeeProfileListCreateView(generics.ListCreateAPIView):
     serializer_class = EmployeeProfileSerializer
 
 
+class EmployeeProfileGetUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = EmployeeProfile.objects.all()
+    serializer_class = EmployeeProfileSerializer
+
+
 class ProfileCheck(APIView):
     """
     Takes a GET request with a token and returns an object with the type of
