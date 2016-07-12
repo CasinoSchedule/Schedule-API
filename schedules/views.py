@@ -207,25 +207,6 @@ class WorkDayDetail(generics.RetrieveAPIView):
     queryset = WorkDay.objects.all()
 
 
-class ShiftCreateMany(APIView):
-    """
-    Mark, I can change the inputs to date objects if that would be easier.
-
-    Create multiple schedules with one POST request.
-    Example: [
-    {"starting_time": "11:00:00", "day": 20, "employee": 1},
-     {"starting_time": "11:00:00", "day": 21, "employee": 1}
-     ]
-    """
-
-    def post(self, request, format=None):
-        serializer = ShiftCreateSerializer(data=request.data, many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class ShiftCreateManyByDate(APIView):
     """
     Create and/or update multiple schedules with one POST request, using the
@@ -238,8 +219,6 @@ class ShiftCreateManyByDate(APIView):
      {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
      ]
     """
-    # New schedules and WorkDays are created if needed.
-
 
     def post(self, request, format=None):
 
@@ -254,7 +233,14 @@ class ShiftCreateManyByDate(APIView):
                 get_or_create_schedule(item['day'])
                 item['day'] = WorkDay.objects.get(day_date=item['day']).id
 
-            updated_data.append(item)
+            if item['starting_time']:
+                updated_data.append(item)
+            else:
+                shift = Shift.objects.filter(day=item['day'],
+                                             employee=item['employee']
+                                             ).first()
+                if shift:
+                    shift.delete()
 
         serializer = ShiftCreateSerializer(data=updated_data, many=True)
         if serializer.is_valid():
@@ -362,7 +348,23 @@ class CreateEOEntry(generics.CreateAPIView):
                         eo_list=EOList.objects.get(pk=eo_list_id))
 
 
-
-
+#
+# class ShiftCreateMany(APIView):
+#     """
+#     Mark, I can change the inputs to date objects if that would be easier.
+#
+#     Create multiple schedules with one POST request.
+#     Example: [
+#     {"starting_time": "11:00:00", "day": 20, "employee": 1},
+#      {"starting_time": "11:00:00", "day": 21, "employee": 1}
+#      ]
+#     """
+#
+#     def post(self, request, format=None):
+#         serializer = ShiftCreateSerializer(data=request.data, many=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
