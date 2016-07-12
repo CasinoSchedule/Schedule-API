@@ -5,6 +5,7 @@ import calendar
 from rest_framework.response import Response
 from django.db.models import Count
 from django.contrib.auth.models import User
+import logging
 
 from rest_framework.views import APIView
 
@@ -17,6 +18,9 @@ from schedules.serializers import ScheduleSerializer, \
     EOListSerializer, EOEntrySerializer
 
 from schedules.twilio_functions import twilio_shift
+
+
+logger = logging.getLogger("debug_logger")
 
 
 def create_schedule(monday):
@@ -233,6 +237,8 @@ class ShiftCreateManyByDate(APIView):
 
     def post(self, request, format=None):
 
+        # If starting time is "" then delete shift if it exists.
+
         updated_data = []
         for item in request.data:
             workday = WorkDay.objects.filter(day_date=item['day']).first()
@@ -282,10 +288,16 @@ class ActivateShiftWeek(APIView):
                                       day__day_date__lte=last.day_date,
                                       visible=False
                                       ).all()
-
+        logger.debug("number shifts: {}".format(shifts.count()))
         phone_notify_employees(shifts)
         amount = shifts.count()
         shifts.update(visible=True)
+
+        logger.debug("Starting day: {}".format(first.day_date))
+        logger.debug("Ending day: {}".format(last.day_date))
+
+        logger.debug("amount: {}".format(amount))
+
         return Response(
             {'amount updated': amount},
             status=status.HTTP_200_OK
