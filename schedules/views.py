@@ -76,6 +76,17 @@ def get_or_create_schedule(date):
     return current_schedule
 
 
+def print_time(time):
+    """
+    time: a time field string, 11:00:00
+    """
+    return time.strftime("%I:%M %p")
+
+
+def print_date(date):
+    return date.strftime('%A, %B %d')
+
+
 def phone_notify_employees(data):
 
     employee_ids = set([x.employee.id for x in data])
@@ -86,13 +97,16 @@ def phone_notify_employees(data):
         logger.debug("person id: {}".format(person.id))
         #logger.debug("person: {}".format(person))
 
-        message = 'You have new shifts posted.\n'
+        message = 'You have new shifts posted.\n\n'
         matches = [x for x in data if x.employee.id == person.id]
         logger.debug("matches: {}".format(matches))
+
         for match in matches:
-            message += "{}: {}\n".format(
-                WorkDay.objects.get(id=match.day.id).day_date,
-                match.starting_time
+            date = WorkDay.objects.get(id=match.day.id).day_date
+            time = match.starting_time
+            message += "{} at {}\n".format(
+                print_date(date),
+                print_time(time)
             )
 
         num = person.phone_number
