@@ -3,10 +3,6 @@ import datetime
 from profiles.models import ManagerProfile, EmployeeProfile
 
 
-# NOTE: I am not sure yet if schedules will be unique for each period, or will
-# add another identifier so that there can be multiple schedules for each day.
-# For now I will make the slightly sketchy assumption that they are unique.
-
 class Schedule(models.Model):
     """
     A weekly schedule. Made up of 7 days, starting from Monday.
@@ -91,6 +87,7 @@ class Shift(models.Model):
 
     @property
     def called_out(self):
+        # Switch to status update.
         if CallOut.objects.filter(shift=self).first():
             return True
         else:
@@ -136,6 +133,15 @@ class CallOut(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+
+class Status(models.Model):
+    """
+    Possible values: ['Pending', 'Approved', 'Rejected']
+    """
+    title = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.title
 
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)
