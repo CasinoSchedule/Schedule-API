@@ -66,3 +66,8 @@
 [DEBUG] 2016-07-12 18:07:02,517 views Starting day: 2016-05-23
 [DEBUG] 2016-07-12 18:07:02,517 views Ending day: 2016-05-29
 [DEBUG] 2016-07-12 18:07:02,517 views amount: 1
+[DEBUG] 2016-07-13 23:26:52,878 views number shifts: 1
+[DEBUG] 2016-07-13 23:26:52,883 views employee ids: {1}
+[DEBUG] 2016-07-13 23:26:52,888 views Starting day: 2016-09-26
+[DEBUG] 2016-07-13 23:26:52,888 views Ending day: 2016-10-02
+[DEBUG] 2016-07-13 23:26:52,888 views amount: 1

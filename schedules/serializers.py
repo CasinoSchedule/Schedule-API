@@ -36,7 +36,7 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ("starting_time", "length", "visible", "employee",
+        fields = ("starting_time", "length", "visible", "called_out", "employee",
                   "calendar_date", "end_time", "day")
 
 
@@ -103,9 +103,6 @@ class EOShiftSerializer(serializers.ModelSerializer):
 
 
 class EOEntrySerializer(serializers.ModelSerializer):
-
-    #shift = serializers.ReadOnlyField()
-    #eo_list = serializers.ReadOnlyField()
 
     class Meta:
         model = EOEntry

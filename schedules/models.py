@@ -80,7 +80,6 @@ class Shift(models.Model):
         return "{}-{}-{}".format(self.day.day_date.year,
                                  self.day.day_date.month,
                                  self.day.day_date.day)
-        #return self.day.day_date
 
     @property
     def end_time(self):
@@ -89,6 +88,16 @@ class Shift(models.Model):
         ) + datetime.timedelta(hours=self.length
                                )
         return dt.time()
+
+    @property
+    def called_out(self):
+        if CallOut.objects.filter(shift=self).first():
+            return True
+        else:
+            return False
+
+    def __str__(self):
+        return "{}, {}, {}".format(self.id, self.employee, self.day)
 
 
 class EOList(models.Model):
