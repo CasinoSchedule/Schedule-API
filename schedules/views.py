@@ -274,20 +274,6 @@ class ShiftCreateManyByDate(APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class ShiftCreateByDate(generics.CreateAPIView):
-    """
-    Create a Shift object using a date, rather than a WorkDay id number.
-    example: {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1}
-    """
-    queryset = Shift.objects.all()
-    serializer_class = ShiftByDateSerializer
-
-    def perform_create(self, serializer):
-        date = self.request.data["day"]
-        day = WorkDay.objects.get(day_date=date)
-        serializer.save(day=day)
-
-
 class ActivateShiftWeek(APIView):
     """
     POST a date. All shifts for that week will be made visible to employees
@@ -386,6 +372,20 @@ class CallOutDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CallOutSerializer
 
 
+
+#
+# class ShiftCreateByDate(generics.CreateAPIView):
+#     """
+#     Create a Shift object using a date, rather than a WorkDay id number.
+#     example: {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1}
+#     """
+#     queryset = Shift.objects.all()
+#     serializer_class = ShiftByDateSerializer
+#
+#     def perform_create(self, serializer):
+#         date = self.request.data["day"]
+#         day = WorkDay.objects.get(day_date=date)
+#         serializer.save(day=day)
 
 
 #

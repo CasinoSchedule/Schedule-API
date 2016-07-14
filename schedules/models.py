@@ -87,9 +87,10 @@ class Shift(models.Model):
 
     @property
     def called_out(self):
-        # Switch to status update.
-        if CallOut.objects.filter(shift=self).first():
-            return True
+        # Should return [False, 'Pending', 'Approved', 'Rejected']
+        callout = CallOut.objects.filter(shift=self).first()
+        if callout:
+            return self.callout.status.title
         else:
             return False
 
@@ -127,13 +128,6 @@ class EOEntry(models.Model):
         unique_together = ('shift', 'eo_list')
 
 
-class CallOut(models.Model):
-    shift = models.OneToOneField(Shift)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
-
-
 class Status(models.Model):
     """
     Possible values: ['Pending', 'Approved', 'Rejected']
@@ -142,6 +136,16 @@ class Status(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class CallOut(models.Model):
+    shift = models.OneToOneField(Shift)
+
+    status = models.ForeignKey(Status, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
 
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)
