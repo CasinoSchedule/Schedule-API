@@ -109,7 +109,7 @@ class EOEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EOEntry
-        fields = ('id', 'eo_list', 'status', 'shift')
+        fields = ('id', 'eo_list', 'status', 'shift', 'created_at')
 
 
 class EOListSerializer(serializers.ModelSerializer):

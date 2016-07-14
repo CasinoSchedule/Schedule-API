@@ -64,7 +64,6 @@ def get_or_create_schedule(date):
     dates = [int(x) for x in dates]
     working_date = datetime.date(dates[0], dates[1], dates[2])
 
-
     monday = most_recent_monday(working_date)
     work_day = WorkDay.objects.filter(day_date=monday).first()
 
@@ -113,12 +112,25 @@ def phone_notify_employees(data):
         twilio_shift(num, message)
 
 
-def date_string_to_datetime(date_string):
+def date_string_to_datetime(date_string, time=None):
     """
     Turns a date string like '2016-6-20' into a Date object.
+    time must only be hours and minutes.
     """
-    y, m, d = [int(x) for x in date_string.split('-')]
-    return datetime.date(y, m, d)
+    year, month, day = [int(x) for x in date_string.split('-')]
+    if time:
+        hour = int(time.split(':')[0])
+        return datetime.datetime(year, month, day, hour)
+
+    return datetime.date(year, month, day)
+
+
+def is_past(date, time):
+    """
+    Return True if the date and time passed in is later than current moment.
+    """
+    requested_time = date_string_to_datetime(date, time)
+    return datetime.datetime.now() > requested_time
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
@@ -153,14 +165,6 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
         )
 
         return qs.order_by("day__day_date")
-
-
-class CustomShift(APIView):
-
-    def get(self, request, format=None):
-        data = Shift.objects.first()
-        answer = {str(data.calendar_date): "test"}
-        return Response(answer)
 
 
 class ListCreateShift(generics.ListCreateAPIView):
@@ -240,6 +244,11 @@ class ShiftCreateManyByDate(APIView):
 
         updated_data = []
         for item in request.data:
+
+            if is_past(item['day'], item['starting_time']):
+                return Response("Changing past shifts is forbidden.",
+                                status=status.HTTP_403_FORBIDDEN)
+
             workday = WorkDay.objects.filter(day_date=item['day']).first()
             if workday:
                 item['day'] = workday.id
@@ -362,6 +371,11 @@ class CreateEOEntry(generics.CreateAPIView):
                         eo_list=EOList.objects.get(pk=eo_list_id))
 
 
+class EOListList(generics.ListAPIView):
+    queryset = EOList.objects.all()
+    serializer_class = EOListSerializer
+
+
 class CallOutListCreate(generics.ListCreateAPIView):
     queryset = CallOut.objects.all()
     serializer_class = CallOutSerializer
@@ -370,6 +384,8 @@ class CallOutListCreate(generics.ListCreateAPIView):
 class CallOutDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = CallOut.objects.all()
     serializer_class = CallOutSerializer
+
+
 
 
 #
