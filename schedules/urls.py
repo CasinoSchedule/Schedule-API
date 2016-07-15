@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from schedules.views import WorkDayList, \
     ScheduleDetail, WorkDayDetail, EmployeeShiftsByMonth, \
     ListCreateShift, ShiftWeekList, ShiftRetrieveUpdateDelete, ShiftCreateManyByDate, ActivateShiftWeek, \
-    RetrieveEOList, CreateEOEntry, EOListList
+    RetrieveEOList, CreateEOEntry, EOListList, CallOutListCreate
 
 urlpatterns = [
     url(r'^employeemonth/$', EmployeeShiftsByMonth.as_view(),
@@ -37,5 +37,6 @@ urlpatterns = [
     url(r'^eolist/entry/$', CreateEOEntry.as_view(),
         name='create_eo_entry'),
     url(r'^eolist/$', EOListList.as_view(), name='eo_lists'),
+    url(r'callout/$', CallOutListCreate.as_view(), name='callout_list'),
 
 ]

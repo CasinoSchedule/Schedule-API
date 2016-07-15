@@ -36,7 +36,7 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ("starting_time", "length", "visible", "called_out", "employee",
+        fields = ("id", "starting_time", "length", "visible", "called_out", "employee",
                   "calendar_date", "end_time", "day")
 
 
@@ -51,9 +51,10 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
         shift = Shift.objects.filter(employee=validated_data['employee'],
                                   day=validated_data['day']).first()
 
-        # Delete shift if starting time is ""
+        # Delete shift if starting time is "", otherwise update.
         if shift:
             setattr(shift, 'starting_time', validated_data['starting_time'])
+            setattr(shift, 'visible', False)
             shift.save()
         else:
             shift = Shift.objects.create(**validated_data)
