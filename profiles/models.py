@@ -13,6 +13,13 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
+class Available(models.Model):
+    title = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.title
+
+
 class EmployeeStatus(models.Model):
     title = models.CharField(max_length=30)
 
