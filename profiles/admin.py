@@ -12,4 +12,4 @@ class ManagerProfileAdmin(admin.ModelAdmin):
 class EmployeeProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "first_name", "last_name", "employee_id", "position_title",
                     "phone_number", "email", "phone_notifications",
-                    "email_notifications", "created_at", "modified_at")
+                    "email_notifications", "days_off", "created_at", "modified_at")

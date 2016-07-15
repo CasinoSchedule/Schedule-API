@@ -49,6 +49,7 @@ class EmployeeProfile(models.Model):
 
     # availability
     # usual_shift: grave, swing, day
+    # skills
 
     # Validate these in form
     phone_number = models.CharField(max_length=255, blank=True, null=True)
@@ -57,14 +58,16 @@ class EmployeeProfile(models.Model):
     phone_notifications = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=False)
 
-    # skills
+    regular_days_off = models.ManyToManyField('schedules.DayOfWeek')
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
     @property
-    def test(self):
-        return 1
+    def days_off(self):
+
+        return self.regular_days_off.values_list('title', flat=True)
 
     def __str__(self):
         return self.user.username

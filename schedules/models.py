@@ -148,6 +148,10 @@ class CallOut(models.Model):
 
 
 class DayOfWeek(models.Model):
+    """
+    The days, in order are:
+    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    """
     title = models.CharField(max_length=50)
 
     def __str__(self):
