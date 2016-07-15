@@ -147,6 +147,12 @@ class CallOut(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
 
+class DayOfWeek(models.Model):
+    title = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.title
+
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)
 #     description = models.TextField(blank=True, null=True)
