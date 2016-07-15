@@ -1,13 +1,15 @@
 from django.conf.urls import url
 
 from profiles.views import EmployeeProfileListCreateView, ProfileCheck, \
-    EmployeeProfileGetUpdateDelete
+    EmployeeProfileGetDelete, EmployeeProfileUpdate
 
 urlpatterns = [
     url(r'^employee/$', EmployeeProfileListCreateView.as_view(),
         name="employee_list_create"),
+    url(r'^employee/update/(?P<pk>\d+)/$', EmployeeProfileUpdate.as_view(),
+        name="employee_update"),
     url(r'^employee/(?P<pk>\d+)/$',
-        EmployeeProfileGetUpdateDelete.as_view(),
+        EmployeeProfileGetDelete.as_view(),
         name="employee_update_delete"),
 
     url(r'^check/$', ProfileCheck.as_view(),

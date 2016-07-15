@@ -174,9 +174,4 @@ class DayOfWeek(models.Model):
 #     shift = models.ForeignKey(Shift)
 #
 #
-# class ShiftTime(models.Model):
-#     """
-#     grave, swing, day.
-#     Has time periods for each and an endpoint to change them.
-#     """
-#     pass
+

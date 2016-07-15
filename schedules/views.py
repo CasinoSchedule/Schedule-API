@@ -363,6 +363,12 @@ class EOListList(generics.ListAPIView):
 
 
 class CallOutListCreate(generics.ListCreateAPIView):
+    """
+    To create a call out send the shift.id and a status. The status will
+    usually be 1, which is pending.
+    example: {"shift": 75, "status": 1}
+
+    """
     queryset = CallOut.objects.all()
     serializer_class = CallOutSerializer
 
