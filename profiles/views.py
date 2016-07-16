@@ -33,7 +33,8 @@ class EmployeeProfileGetDelete(generics.RetrieveDestroyAPIView):
 class EmployeeProfileUpdate(APIView):
     """
     Update employee profile.
-    For days off send a list of integers, 1=Monday, 7=Sunday.
+    For days_off send a list of integers, 1=Monday, 7=Sunday.
+
     """
 
     def put(self, request, pk):

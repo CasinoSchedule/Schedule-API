@@ -14,6 +14,10 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 
 class Available(models.Model):
+    """
+    The shift periods that an employee can work.
+    ['Day', 'Swing', 'Grave']
+    """
     title = models.CharField(max_length=50)
 
     def __str__(self):
@@ -68,8 +72,11 @@ class EmployeeProfile(models.Model):
 
     @property
     def days_off(self):
-
         return self.regular_days_off.values_list('title', flat=True)
+
+    @property
+    def shift_title(self):
+        return self.availability.values_list('title', flat=True)
 
     def __str__(self):
         return self.user.username
