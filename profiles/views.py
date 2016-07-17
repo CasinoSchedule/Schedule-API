@@ -34,7 +34,7 @@ class EmployeeProfileUpdate(APIView):
     """
     Update employee profile.
     For days_off send a list of integers, 1=Monday, 7=Sunday.
-
+    For availability send a list of integers, 1=day, 2=swing, 3=grave
     """
 
     def put(self, request, pk):

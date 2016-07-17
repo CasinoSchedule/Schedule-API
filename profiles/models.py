@@ -79,4 +79,4 @@ class EmployeeProfile(models.Model):
         return self.availability.values_list('title', flat=True)
 
     def __str__(self):
-        return self.user.username
+        return "{} {}".format(self.first_name, self.last_name)
