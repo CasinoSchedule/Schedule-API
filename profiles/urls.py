@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^check/$', ProfileCheck.as_view(),
         name="profile_check"),
 
+
 ]

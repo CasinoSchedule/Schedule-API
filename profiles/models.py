@@ -27,6 +27,7 @@ class Available(models.Model):
 class EmployeeStatus(models.Model):
     title = models.CharField(max_length=30)
 
+
 class ManagerProfile(models.Model):
 
     user = models.OneToOneField(User, null=True)
@@ -64,8 +65,8 @@ class EmployeeProfile(models.Model):
     phone_notifications = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=False)
 
-    regular_days_off = models.ManyToManyField('schedules.DayOfWeek')
-    availability = models.ManyToManyField(Available)
+    regular_days_off = models.ManyToManyField('schedules.DayOfWeek', null=True, blank=True)
+    availability = models.ManyToManyField(Available, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

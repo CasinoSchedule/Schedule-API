@@ -15,7 +15,6 @@ Views for updating and creating profiles
 
 
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):
-    #queryset = EmployeeProfile.objects.all().order_by('created_at')
     serializer_class = EmployeeProfileSerializer
 
     def get_queryset(self):
@@ -50,6 +49,7 @@ class EmployeeProfileUpdate(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = UpdateEmployeeProfileSerializer(profile, request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
