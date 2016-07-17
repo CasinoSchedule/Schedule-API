@@ -245,9 +245,9 @@ class ShiftCreateManyByDate(APIView):
         updated_data = []
         for item in request.data:
 
-            if is_past(item['day'], item['starting_time']):
-                return Response("Changing past shifts is forbidden.",
-                                status=status.HTTP_403_FORBIDDEN)
+            # if is_past(item['day'], item['starting_time']):
+            #     return Response("Changing past shifts is forbidden.",
+            #                     status=status.HTTP_403_FORBIDDEN)
 
             workday = WorkDay.objects.filter(day_date=item['day']).first()
             if workday:
