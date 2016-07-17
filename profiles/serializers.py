@@ -22,7 +22,14 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
 
 
 class UpdateEmployeeProfileSerializer(serializers.ModelSerializer):
-    availability = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Available.objects.all())
+    availability = serializers.PrimaryKeyRelatedField(many=True,
+                                                      read_only=False,
+                                                      queryset=Available.objects.all(),
+                                                      required=False)
+    regular_days_off = serializers.PrimaryKeyRelatedField(many=True,
+                                                          read_only=False,
+                                                          queryset=DayOfWeek.objects.all(),
+                                                          required=False)
 
     class Meta:
         model = EmployeeProfile
