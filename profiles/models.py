@@ -66,9 +66,8 @@ class EmployeeProfile(models.Model):
     email_notifications = models.BooleanField(default=False)
 
     regular_days_off = models.ManyToManyField('schedules.DayOfWeek',
-                                              null=True,
                                               blank=True)
-    availability = models.ManyToManyField(Available, null=True, blank=True)
+    availability = models.ManyToManyField(Available, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
