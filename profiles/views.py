@@ -14,12 +14,17 @@ Views for updating and creating profiles
 """
 
 
-# class Available
-
-
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):
-    queryset = EmployeeProfile.objects.all()
+    #queryset = EmployeeProfile.objects.all().order_by('created_at')
     serializer_class = EmployeeProfileSerializer
+
+    def get_queryset(self):
+        qs = EmployeeProfile.objects.all().order_by('created_at')
+        shift_title = self.request.query_params.get('shift_title')
+        if shift_title:
+            shift_title = [int(x) for x in shift_title.split(',')]
+            qs = qs.filter(availability__in=shift_title)
+        return qs
 
 
 class EmployeeProfileGetDelete(generics.RetrieveDestroyAPIView):
