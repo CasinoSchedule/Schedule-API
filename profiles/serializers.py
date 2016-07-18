@@ -21,7 +21,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
                   )
 
 
-class UpdateEmployeeProfileSerializer(serializers.ModelSerializer):
+class UpdateCreateEmployeeProfileSerializer(serializers.ModelSerializer):
     availability = serializers.PrimaryKeyRelatedField(many=True,
                                                       read_only=False,
                                                       queryset=Available.objects.all(),

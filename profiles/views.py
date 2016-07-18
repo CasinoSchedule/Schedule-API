@@ -7,7 +7,7 @@ from rest_framework import generics, status
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from profiles.serializers import EmployeeProfileSerializer, \
-    UpdateEmployeeProfileSerializer
+    UpdateCreateEmployeeProfileSerializer
 
 """
 Views for updating and creating profiles
@@ -15,7 +15,7 @@ Views for updating and creating profiles
 
 
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):
-    serializer_class = EmployeeProfileSerializer
+    serializer_class = UpdateCreateEmployeeProfileSerializer
 
     def get_queryset(self):
         qs = EmployeeProfile.objects.all().order_by('created_at')
@@ -38,7 +38,7 @@ class EmployeeProfileUpdate(APIView):
     """
     Update employee profile.
     For days_off send a list of integers, 1=Monday, 7=Sunday.
-    For availability send a list of integers, 1=day, 2=swing, 3=grave
+    For availability send a list of integers, 1=grave, 2=day, 3=swing
     """
 
     def put(self, request, pk):
@@ -48,7 +48,7 @@ class EmployeeProfileUpdate(APIView):
         except EmployeeProfile.DoesNotExist as e:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UpdateEmployeeProfileSerializer(profile, request.data)
+        serializer = UpdateCreateEmployeeProfileSerializer(profile, request.data)
 
         if serializer.is_valid():
             serializer.save()
