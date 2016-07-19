@@ -138,10 +138,22 @@ class Status(models.Model):
         return self.title
 
 
+class CallOutType(models.Model):
+    """
+    Different types of CallOuts:
+    ['unpaid', 'pto', 'FMLA']
+    """
+    title = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.title
+
+
 class CallOut(models.Model):
     shift = models.OneToOneField(Shift)
 
     status = models.ForeignKey(Status, null=True)
+    call_type = models.ForeignKey(CallOutType)
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
