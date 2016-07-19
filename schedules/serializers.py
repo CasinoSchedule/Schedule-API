@@ -133,14 +133,19 @@ class CallOutSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TimeOffRequestSerializer(serializers.ModelSerializer):
+class TimeOffRequestCreateSerializer(serializers.ModelSerializer):
     """
     """
 
-    #employee = serializers.PrimaryKeyRelatedField(read_only=True)
-    # days = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    employee = serializers.PrimaryKeyRelatedField(read_only=True)
+    days = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
-    # Note: check time off request creation with the new serializer
+    class Meta:
+        model = TimeOffRequest
+        fields = '__all__'
+
+
+class TimeOffRequestDisplaySerializer(serializers.ModelSerializer):
 
     employee = EmployeeProfileSerializer(read_only=True)
     days = WorkDayDateSerializer(read_only=True, many=True)

@@ -17,7 +17,7 @@ from schedules.serializers import ScheduleSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
     ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer, \
     EOListSerializer, EOEntrySerializer, CallOutSerializer, \
-    TimeOffRequestSerializer
+    TimeOffRequestCreateSerializer, TimeOffRequestDisplaySerializer
 
 from schedules.twilio_functions import twilio_shift
 
@@ -380,14 +380,14 @@ class CallOutDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CallOutSerializer
 
 
-class TimeOffRequestListCreate(generics.ListCreateAPIView):
+class TimeOffRequestCreate(generics.ListCreateAPIView):
     """
     Create a time off request with a list of days and a status, 1=Pending.
     example: {"days": ["2016-7-1", "2016-7-2"], "status": 1}
     Employee will be set to the requesting user's employee profile.
     """
     queryset = TimeOffRequest.objects.all()
-    serializer_class = TimeOffRequestSerializer
+    serializer_class = TimeOffRequestCreateSerializer
 
     def perform_create(self, serializer):
         if not self.request.user.id:
@@ -404,7 +404,12 @@ class TimeOffRequestListCreate(generics.ListCreateAPIView):
         serializer.save(employee=employee,
                         days=dates)
 
-#
+
+class TimeOffRequestList(generics.ListAPIView):
+    queryset = TimeOffRequest.objects.all()
+    serializer_class = TimeOffRequestDisplaySerializer
+
+
 # class ShiftCreateByDate(generics.CreateAPIView):
 #     """
 #     Create a Shift object using a date, rather than a WorkDay id number.
