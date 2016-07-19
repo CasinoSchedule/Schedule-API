@@ -70,7 +70,6 @@ class Shift(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
-
     @property
     def calendar_date(self):
         return "{}-{}-{}".format(self.day.day_date.year,
@@ -153,6 +152,7 @@ class CallOut(models.Model):
     shift = models.OneToOneField(Shift)
 
     status = models.ForeignKey(Status, null=True)
+    # Switch to one to one field?
     call_type = models.ForeignKey(CallOutType)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -168,6 +168,13 @@ class DayOfWeek(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TimeOffRequest(models.Model):
+    employee = models.ForeignKey(EmployeeProfile)
+    days = models.ManyToManyField(WorkDay)
+    status = models.ForeignKey(Status)
+
 
 # class Area(models.Model):
 #     title = models.CharField(max_length=255)

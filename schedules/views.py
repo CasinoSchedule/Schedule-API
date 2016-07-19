@@ -364,10 +364,10 @@ class EOListList(generics.ListAPIView):
 
 class CallOutListCreate(generics.ListCreateAPIView):
     """
-    To create a call out send the shift.id and a status. The status will
-    usually be 1, which is pending.
-    example: {"shift": 75, "status": 1}
-
+    To create a call out send the shift.id and a status.
+    status: 1:Pending, 2:Approved, 3:Rejected
+    call_type: 1:unpaid, 2:pto, 3:fmla
+    example: {"shift": 75, "status": 1, "call_type": 1}
     """
     queryset = CallOut.objects.all()
     serializer_class = CallOutSerializer
