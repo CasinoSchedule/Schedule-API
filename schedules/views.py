@@ -10,12 +10,14 @@ import logging
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
-from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
+    TimeOffRequest
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
     ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer, \
-    EOListSerializer, EOEntrySerializer, CallOutSerializer
+    EOListSerializer, EOEntrySerializer, CallOutSerializer, \
+    TimeOffRequestSerializer
 
 from schedules.twilio_functions import twilio_shift
 
@@ -122,7 +124,7 @@ def date_string_to_datetime(date_string, time=None):
         hour = int(time.split(':')[0])
         return datetime.datetime(year, month, day, hour)
 
-    return datetime.date(year, month, day)
+    return datetime.datetime(year, month, day)
 
 
 def is_past(date, time):
@@ -378,6 +380,29 @@ class CallOutDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CallOutSerializer
 
 
+class TimeOffRequestListCreate(generics.ListCreateAPIView):
+    """
+    Create a time off request with a list of days and a status, 1=Pending.
+    example: {"days": ["2016-7-1", "2016-7-2"], "status": 1}
+    Employee will be set to the requesting user's employee profile.
+    """
+    queryset = TimeOffRequest.objects.all()
+    serializer_class = TimeOffRequestSerializer
+
+    def perform_create(self, serializer):
+        if not self.request.user.id:
+            return Response("No employee token sent", status=status.HTTP_400_BAD_REQUEST)
+
+        employee = self.request.user.employeeprofile
+
+        # Note: need to add check for WorkDay
+
+        dates = []
+        for day in self.request.data['days']:
+            dates.append(WorkDay.objects.get(day_date=day).id)
+
+        serializer.save(employee=employee,
+                        days=dates)
 
 #
 # class ShiftCreateByDate(generics.CreateAPIView):

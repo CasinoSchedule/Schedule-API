@@ -15,6 +15,9 @@ Views for updating and creating profiles
 
 
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):
+    """
+    Use ?shift_title=1 to filter for employees on graveyard.
+    """
     serializer_class = UpdateCreateEmployeeProfileSerializer
 
     def get_queryset(self):

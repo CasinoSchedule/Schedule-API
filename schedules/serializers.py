@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
-from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
+    TimeOffRequest
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,6 +19,13 @@ class WorkDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkDay
         fields = "__all__"
+
+
+class WorkDayDateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = WorkDay
+        fields = ('day_date',)
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
@@ -122,4 +130,21 @@ class CallOutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CallOut
+        fields = '__all__'
+
+
+class TimeOffRequestSerializer(serializers.ModelSerializer):
+    """
+    """
+
+    #employee = serializers.PrimaryKeyRelatedField(read_only=True)
+    # days = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+
+    # Note: check time off request creation with the new serializer
+
+    employee = EmployeeProfileSerializer(read_only=True)
+    days = WorkDayDateSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = TimeOffRequest
         fields = '__all__'
