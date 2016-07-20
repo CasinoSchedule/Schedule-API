@@ -180,6 +180,9 @@ class Department(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.title
+
 
 class Area(models.Model):
     title = models.CharField(max_length=255)
@@ -187,9 +190,20 @@ class Area(models.Model):
 
     department = models.ForeignKey(Department)
 
-# Shift has to have area
-# Employee can have one department, changeable if they switch.
+    def __str__(self):
+        return self.title
 
+
+class Station(models.Model):
+    title = models.CharField(max_length=255)
+    area = models.ForeignKey(Area)
+
+    grave_start = models.TimeField(null=True, blank=True)
+    day_start = models.TimeField(null=True, blank=True)
+    swing_start = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
 
 
 # class ShiftTrade(models.Model):
