@@ -176,17 +176,22 @@ class TimeOffRequest(models.Model):
     status = models.ForeignKey(Status)
 
 
-# class Area(models.Model):
-#     title = models.CharField(max_length=255)
-#     description = models.TextField(blank=True, null=True)
-#
-#
-# class Section(models.Model):
-#     area = models.ForeignKey(Area)
-#     title = models.CharField(max_length=255)
-#     description = models.TextField(blank=True, null=True)
-#
-#
+class Department(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+
+class Area(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    department = models.ForeignKey(Department)
+
+# Shift has to have area
+# Employee can have one department, changeable if they switch.
+
+
+
 # class ShiftTrade(models.Model):
 #     initiating_employee = models.ForeignKey(EmployeeProfile, related_name="initiator")
 #     responding_employee = models.ForeignKey(EmployeeProfile, related_name="responder")

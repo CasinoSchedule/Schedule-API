@@ -5,12 +5,12 @@ from schedules.models import WorkDay, Schedule, Shift, EOList, CallOut, Status, 
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ("id", "manager", "status", "created_at", "modified_at", "starting")
+    list_display = ('id', 'manager', 'status', 'created_at', 'modified_at', 'starting')
 
 
 @admin.register(WorkDay)
 class WorkDayAdmin(admin.ModelAdmin):
-    list_display = ("id", "day_date", "schedule")
+    list_display = ('id', 'day_date', 'schedule')
 
 
 @admin.register(Shift)
@@ -39,3 +39,8 @@ class DayOfWeekAdmin(admin.ModelAdmin):
 @admin.register(TimeOffRequest)
 class TimeOffRequest(admin.ModelAdmin):
     list_display = ("id", "employee", "status")
+
+
+# @admin.register(Area)
+# class AreaAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'title')
