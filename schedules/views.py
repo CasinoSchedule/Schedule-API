@@ -20,6 +20,7 @@ from schedules.serializers import ScheduleSerializer, \
     TimeOffRequestCreateSerializer, TimeOffRequestDisplaySerializer
 
 from schedules.twilio_functions import twilio_shift
+from schedules.sendgrid_functions import email_shift
 
 
 logger = logging.getLogger("debug_logger")
@@ -88,19 +89,16 @@ def print_date(date):
     return date.strftime('%A, %B %d')
 
 
+# Note: This is bad code. The notify functions should be refactored later.
 def phone_notify_employees(data):
 
     employee_ids = set([x.employee.id for x in data])
-    logger.debug("employee ids: {}".format(employee_ids))
+
     for person in EmployeeProfile.objects.filter(id__in=employee_ids,
                                            phone_notifications=True).all():
-        logger.debug("person: {}".format(person))
-        logger.debug("person id: {}".format(person.id))
-        #logger.debug("person: {}".format(person))
 
         message = 'You have new shifts posted.\n\n'
         matches = [x for x in data if x.employee.id == person.id]
-        logger.debug("matches: {}".format(matches))
 
         for match in matches:
             date = WorkDay.objects.get(id=match.day.id).day_date
@@ -112,6 +110,29 @@ def phone_notify_employees(data):
 
         num = person.phone_number
         twilio_shift(num, message)
+
+
+def email_notify_employees(data):
+
+    employee_ids = set([x.employee.id for x in data])
+
+    for person in EmployeeProfile.objects.filter(id__in=employee_ids,
+                                                 email_notifications=True
+                                                 ).all():
+
+        message = ''
+        matches = [x for x in data if x.employee.id == person.id]
+
+        for match in matches:
+            date = WorkDay.objects.get(id=match.day.id).day_date
+            time = match.starting_time
+            message += "{} at {}\n".format(
+                print_date(date),
+                print_time(time)
+            )
+
+        profile_email = person.email
+        email_shift(profile_email, message)
 
 
 def date_string_to_datetime(date_string, time=None):
@@ -293,6 +314,7 @@ class ActivateShiftWeek(APIView):
                                       ).all()
         logger.debug("number shifts: {}".format(shifts.count()))
         phone_notify_employees(shifts)
+        email_notify_employees(shifts)
         amount = shifts.count()
         shifts.update(visible=True)
 
