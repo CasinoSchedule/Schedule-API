@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import generics, status
+from schedules.sendgrid_functions import signup_email
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from profiles.serializers import EmployeeProfileSerializer, \
@@ -13,6 +14,17 @@ from profiles.serializers import EmployeeProfileSerializer, \
 """
 Views for updating and creating profiles
 """
+
+
+class NotifyNewEmployee(APIView):
+    """
+    POST an email and employee profile id. They will be sent a link to register
+    as a new user, linked with that profile.
+    example: {"email": "aaron@aol.com", "profile_id": 5}
+    """
+    def post(self, request, format=None):
+        signup_email(request.data['email'], request.data['profile_id'])
+        return Response('email sent successfully', status=status.HTTP_200_OK)
 
 
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):

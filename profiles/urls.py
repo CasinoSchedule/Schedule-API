@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 from profiles.views import EmployeeProfileListCreateView, ProfileCheck, \
     EmployeeProfileGetDelete, EmployeeProfileUpdate, UserCreateWithEmployeeProfile, \
-    UserList
+    UserList, NotifyNewEmployee
 
 urlpatterns = [
     url(r'^employee/$', EmployeeProfileListCreateView.as_view(),
@@ -22,4 +22,6 @@ urlpatterns = [
     url(r'^user/$', UserList.as_view(),
         name="user_list"),
 
+    url(r'^notify/employee/$', NotifyNewEmployee.as_view(),
+        name="notify_new_employee"),
 ]
