@@ -1,6 +1,6 @@
 from django.contrib import admin
 from schedules.models import WorkDay, Schedule, Shift, EOList, CallOut, Status, \
-    DayOfWeek, TimeOffRequest
+    DayOfWeek, TimeOffRequest, Area, Department
 
 
 @admin.register(Schedule)
@@ -41,6 +41,11 @@ class TimeOffRequest(admin.ModelAdmin):
     list_display = ("id", "employee", "status")
 
 
-# @admin.register(Area)
-# class AreaAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'title')
+@admin.register(Area)
+class AreaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title')
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title')
