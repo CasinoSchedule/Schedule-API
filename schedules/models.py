@@ -197,6 +197,8 @@ class Area(models.Model):
 class Station(models.Model):
     title = models.CharField(max_length=255)
     area = models.ForeignKey(Area)
+    must_fill = models.BooleanField()
+
 
     grave_start = models.TimeField(null=True, blank=True)
     day_start = models.TimeField(null=True, blank=True)
@@ -204,7 +206,6 @@ class Station(models.Model):
 
     def __str__(self):
         return self.title
-
 
 # class ShiftTrade(models.Model):
 #     initiating_employee = models.ForeignKey(EmployeeProfile, related_name="initiator")

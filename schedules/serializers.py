@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
 from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
-    TimeOffRequest
+    TimeOffRequest, Area
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -152,4 +152,11 @@ class TimeOffRequestDisplaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimeOffRequest
+        fields = '__all__'
+
+
+class AreaListCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Area
         fields = '__all__'
