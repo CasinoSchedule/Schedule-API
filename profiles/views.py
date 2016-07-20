@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 
 from rest_framework.response import Response
 from rest_framework import generics
@@ -7,7 +8,7 @@ from rest_framework import generics, status
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from profiles.serializers import EmployeeProfileSerializer, \
-    UpdateCreateEmployeeProfileSerializer
+    UpdateCreateEmployeeProfileSerializer, UserCreateWithProfileSerializer, UserSerializer
 
 """
 Views for updating and creating profiles
@@ -79,4 +80,23 @@ class ProfileCheck(APIView):
             return Response({"type": "no profile"})
 
 
+class UserCreateWithEmployeeProfile(APIView):
+    """
+    New user creation for those with an existing employee profile object.
+    POST name, password, and employee profile id.
+    """
+    def post(self, request, format=None):
+        serializer = UserCreateWithProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            profile = EmployeeProfile.objects.get(id=request.data['profile_id'])
+            profile.user = serializer.instance
+            profile.save()
 
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

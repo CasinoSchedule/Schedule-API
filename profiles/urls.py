@@ -1,7 +1,8 @@
 from django.conf.urls import url
 
 from profiles.views import EmployeeProfileListCreateView, ProfileCheck, \
-    EmployeeProfileGetDelete, EmployeeProfileUpdate
+    EmployeeProfileGetDelete, EmployeeProfileUpdate, UserCreateWithEmployeeProfile, \
+    UserList
 
 urlpatterns = [
     url(r'^employee/$', EmployeeProfileListCreateView.as_view(),
@@ -15,5 +16,10 @@ urlpatterns = [
     url(r'^check/$', ProfileCheck.as_view(),
         name="profile_check"),
 
+    url(r'^useremployee/$', UserCreateWithEmployeeProfile.as_view(),
+        name="user_with_profile"),
+
+    url(r'^user/$', UserList.as_view(),
+        name="user_list"),
 
 ]
