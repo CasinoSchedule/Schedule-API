@@ -199,7 +199,6 @@ class Station(models.Model):
     area = models.ForeignKey(Area)
     must_fill = models.BooleanField()
 
-
     grave_start = models.TimeField(null=True, blank=True)
     day_start = models.TimeField(null=True, blank=True)
     swing_start = models.TimeField(null=True, blank=True)
@@ -207,10 +206,12 @@ class Station(models.Model):
     def __str__(self):
         return self.title
 
+
+#['Baccarat', 'High-Limit Slots', 'Poker', 'Chip Bank', 'Marker Bank', 'Main Bank', 'Front Line', 'Credit', 'Float']
+
 # class ShiftTrade(models.Model):
 #     initiating_employee = models.ForeignKey(EmployeeProfile, related_name="initiator")
 #     responding_employee = models.ForeignKey(EmployeeProfile, related_name="responder")
 #     shift = models.ForeignKey(Shift)
 #
 #
-
