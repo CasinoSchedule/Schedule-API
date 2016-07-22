@@ -8,8 +8,9 @@ def signup_email(profile_email, profile_id):
     from_email = Email("admin@rosterbarn.com")
     subject = "Welcome to Roster Barn. New account signup."
     to_email = Email(profile_email)
+    signup_link = 'http://0.0.0.0:5000/employee/{}'.format(profile_id)
     body = "A profile has been created for you, please click the following " \
-           "link to sign up. \n {}".format(profile_id)
+           "link to sign up. \n {}".format(signup_link)
     content = Content("text/plain", body)
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())

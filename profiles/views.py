@@ -95,13 +95,17 @@ class ProfileCheck(APIView):
 class UserCreateWithEmployeeProfile(APIView):
     """
     New user creation for those with an existing employee profile object.
-    POST name, password, and employee profile id.
+    POST name, password, and employee profile_id.
     """
     def post(self, request, format=None):
         serializer = UserCreateWithProfileSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             profile = EmployeeProfile.objects.get(id=request.data['profile_id'])
+            if profile.user.id:
+                return Response("Profile already has a user",
+                                status=status.HTTP_400_BAD_REQUEST
+                                )
             profile.user = serializer.instance
             profile.save()
 
