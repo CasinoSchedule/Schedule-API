@@ -3,6 +3,37 @@ import datetime
 from profiles.models import ManagerProfile, EmployeeProfile
 
 
+class Department(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Area(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    department = models.ForeignKey(Department)
+
+    def __str__(self):
+        return self.title
+
+
+class Station(models.Model):
+    title = models.CharField(max_length=255)
+    area = models.ForeignKey(Area)
+    must_fill = models.BooleanField()
+
+    grave_start = models.TimeField(null=True, blank=True)
+    day_start = models.TimeField(null=True, blank=True)
+    swing_start = models.TimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+
 class Schedule(models.Model):
     """
     A weekly schedule. Made up of 7 days, starting from Monday.
@@ -61,6 +92,8 @@ class Shift(models.Model):
 
     day = models.ForeignKey(WorkDay)
     employee = models.ForeignKey(EmployeeProfile)
+    area = models.ForeignKey(Area, null=True, blank=True)
+    station = models.ForeignKey(Station, null=True, blank=True)
 
     visible = models.BooleanField(default=False)
 
@@ -175,36 +208,6 @@ class TimeOffRequest(models.Model):
     days = models.ManyToManyField(WorkDay)
     status = models.ForeignKey(Status)
 
-
-class Department(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.title
-
-
-class Area(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-
-    department = models.ForeignKey(Department)
-
-    def __str__(self):
-        return self.title
-
-
-class Station(models.Model):
-    title = models.CharField(max_length=255)
-    area = models.ForeignKey(Area)
-    must_fill = models.BooleanField()
-
-    grave_start = models.TimeField(null=True, blank=True)
-    day_start = models.TimeField(null=True, blank=True)
-    swing_start = models.TimeField(null=True, blank=True)
-
-    def __str__(self):
-        return self.title
 
 
 #['Baccarat', 'High-Limit Slots', 'Poker', 'Chip Bank', 'Marker Bank', 'Main Bank', 'Front Line', 'Credit', 'Float']
