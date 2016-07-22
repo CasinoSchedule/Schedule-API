@@ -102,10 +102,10 @@ class UserCreateWithEmployeeProfile(APIView):
         if serializer.is_valid():
             serializer.save()
             profile = EmployeeProfile.objects.get(id=request.data['profile_id'])
-            if profile.user.id:
-                return Response("Profile already has a user",
-                                status=status.HTTP_400_BAD_REQUEST
-                                )
+            # if profile.user.id:
+            #     return Response("Profile already has a user",
+            #                     status=status.HTTP_400_BAD_REQUEST
+            #                     )
             profile.user = serializer.instance
             profile.save()
 
