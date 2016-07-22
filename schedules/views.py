@@ -256,6 +256,8 @@ class ShiftCreateManyByDate(APIView):
 
      Currently an employee can only have one shift per day. This will probably
      change in the future.
+
+     To add a station or area, include an id.
     Example: [
     {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
      {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}

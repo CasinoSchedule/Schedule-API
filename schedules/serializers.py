@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
 from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
-    TimeOffRequest, Area
+    TimeOffRequest, Area, Station
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,14 +38,23 @@ class ScheduleSerializer(serializers.ModelSerializer):
                   "workday_set")
 
 
+class StationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Station
+        fields = '__all__'
+
+
 class EmployeeShiftSerializer(serializers.ModelSerializer):
 
     employee = EmployeeProfileSerializer(read_only=True)
+    station = StationSerializer(read_only=True)
 
     class Meta:
         model = Shift
-        fields = ("id", "starting_time", "length", "visible", "called_out", "employee",
-                  "calendar_date", "end_time", "day")
+        fields = ("id", "starting_time", "area", "station", "length",
+                  "visible", "called_out", "employee", "calendar_date",
+                  "end_time", "day")
 
 
 class ShiftCreateSerializer(serializers.ModelSerializer):
