@@ -3,7 +3,7 @@ from schedules.views import WorkDayList, \
     ScheduleDetail, WorkDayDetail, EmployeeShiftsByMonth, \
     ListCreateShift, ShiftWeekList, ShiftRetrieveUpdateDelete, ShiftCreateManyByDate, ActivateShiftWeek, \
     RetrieveEOList, CreateEOEntry, EOListList, CallOutListCreate, \
-    TimeOffRequestCreate, TimeOffRequestList
+    TimeOffRequestCreate, TimeOffRequestList, AreaListCreate, StationListCreate
 
 urlpatterns = [
     url(r'^employeemonth/$', EmployeeShiftsByMonth.as_view(),
@@ -39,9 +39,12 @@ urlpatterns = [
         name='create_eo_entry'),
     url(r'^eolist/$', EOListList.as_view(), name='eo_lists'),
 
-    url(r'callout/$', CallOutListCreate.as_view(), name='callout_list'),
-    url(r'timeoff/create/$', TimeOffRequestCreate.as_view(),
+    url(r'^callout/$', CallOutListCreate.as_view(), name='callout_list'),
+    url(r'^timeoff/create/$', TimeOffRequestCreate.as_view(),
         name='time_off_request_create'),
-    url(r'timeoff/list/$', TimeOffRequestList.as_view(),
+    url(r'^timeoff/list/$', TimeOffRequestList.as_view(),
         name='time_off_request_list'),
+
+    url(r'^area/$', AreaListCreate.as_view(), name='area_list_create'),
+    url(r'^station/$', StationListCreate.as_view(), name='station_list_create'),
 ]

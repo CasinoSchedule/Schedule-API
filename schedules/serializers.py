@@ -45,6 +45,13 @@ class StationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AreaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Area
+        fields = '__all__'
+
+
 class EmployeeShiftSerializer(serializers.ModelSerializer):
 
     employee = EmployeeProfileSerializer(read_only=True)
@@ -161,11 +168,4 @@ class TimeOffRequestDisplaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimeOffRequest
-        fields = '__all__'
-
-
-class AreaListCreateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Area
         fields = '__all__'

@@ -17,8 +17,7 @@ from schedules.serializers import ScheduleSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
     ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer, \
     EOListSerializer, EOEntrySerializer, CallOutSerializer, \
-    TimeOffRequestCreateSerializer, TimeOffRequestDisplaySerializer, \
-    AreaListCreateSerializer
+    TimeOffRequestCreateSerializer, TimeOffRequestDisplaySerializer, AreaSerializer, StationSerializer
 
 from schedules.twilio_functions import twilio_shift
 from schedules.sendgrid_functions import email_shift
@@ -437,12 +436,12 @@ class TimeOffRequestList(generics.ListAPIView):
 
 class AreaListCreate(generics.ListCreateAPIView):
     queryset = Area.objects.all()
-    serializer_class = AreaListCreateSerializer
+    serializer_class = AreaSerializer
 
 
-# class StationListCreate(generics.ListCreateAPIView):
-#     queryset = Station.objects.all()
-#     serializer_class = ''
+class StationListCreate(generics.ListCreateAPIView):
+    queryset = Station.objects.all()
+    serializer_class = StationSerializer
 
 
 # class ShiftCreateByDate(generics.CreateAPIView):
