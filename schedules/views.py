@@ -435,13 +435,27 @@ class TimeOffRequestList(generics.ListAPIView):
 
 
 class AreaListCreate(generics.ListCreateAPIView):
+    """
+    GET returns a list of all areas.
+    To create and area POST title, department, description (optional)
+    example: {"title": "test area", department: 1}
+    """
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
 
 
 class StationListCreate(generics.ListCreateAPIView):
+    """
+    GET returns a list of all stations.
+    To create you must POST: title, area
+    Optional fields: must_fill, grave_start, day_start, swing_start
+    example: {"title": "test area", area: 1}
+    """
     queryset = Station.objects.all()
     serializer_class = StationSerializer
+
+
+
 
 
 # class ShiftCreateByDate(generics.CreateAPIView):

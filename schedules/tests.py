@@ -6,11 +6,6 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 
 
-# EmployeeShiftsByMonth: Check that date range in correct, as well as user
-# filtering.
-
-
-# shift creation
 from profiles.models import EmployeeProfile, ManagerProfile
 from schedules.models import WorkDay, Shift
 
@@ -34,56 +29,30 @@ class TestSetup(APITestCase):
                                        position_title="test"
                                        )
 
-    def initialize_week(self, date):
-        # date example: 2016-6-20
-        self.url = reverse("schedule_shifts")
-        response = self.client.get(self.url + "?date={}".format(date))
 
-
-
-class ShiftTest(TestSetup):
-
-    # non-overlapping, return correct response
-    # shift deletion
+class EmployeeMonthTest(TestSetup):
 
     def setUp(self):
         self.employee = self.new_employee('test')
-        self.initialize_week("2016-6-20")
+        self.employee_url = reverse('days_by_month')
+        self.scheduler_url = reverse('multiple_shift_by_date')
 
-    def test_shift_create_delete(self):
-        url = reverse("list_create_shift")
-        data = {
-            "starting_time": "10:00:00",
-            "day": WorkDay.objects.first().id,
-            "employee": EmployeeProfile.objects.first().id
-        }
-        response = self.client.post(url, data, format="json")
+    def test_initial_shift(self):
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Shift.objects.count(), 1)
+        response = self.client.get(self.employee_url, format='json')
 
-        delete_url = reverse('shift_retrieve_delete',
-                             kwargs = {'pk': Shift.objects.first().pk})
-
-        response = self.client.delete(delete_url)
-        print(response.status_code)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
         self.assertEqual(Shift.objects.count(), 0)
 
-    def test_multiple_shift_create(self):
-        url = reverse("shift_create_many")
+    def create_shifts(self):
+
         data = [
-            {
-                "starting_time": "10:00:00",
-                "day": WorkDay.objects.first().id,
-                "employee": EmployeeProfile.objects.first().id
-            },
-            {
-                "starting_time": "10:00:00",
-                "day": WorkDay.objects.last().id,
-                "employee": EmployeeProfile.objects.first().id
-            }
+            {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
+            {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
         ]
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(self.scheduler_url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Shift.objects.count(), 2)
