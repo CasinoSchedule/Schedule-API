@@ -24,7 +24,7 @@ class Area(models.Model):
 class Station(models.Model):
     title = models.CharField(max_length=255)
     area = models.ForeignKey(Area)
-    must_fill = models.BooleanField()
+    must_fill = models.NullBooleanField()
 
     grave_start = models.TimeField(null=True, blank=True)
     day_start = models.TimeField(null=True, blank=True)
