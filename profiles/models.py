@@ -33,7 +33,7 @@ class ManagerProfile(models.Model):
     user = models.OneToOneField(User, null=True)
 
     position_title = models.CharField(max_length=255)
-    department = models.ForeignKey('schedules.Department')
+    department = models.ForeignKey('schedules.Department', null=True, blank=True)
 
     # first_name = models.CharField(max_length=255)
     # last_name = models.CharField(max_length=255)
@@ -58,7 +58,7 @@ class EmployeeProfile(models.Model):
     position_title = models.CharField(max_length=255, null=True, blank=True)
 
     employment_status = models.ForeignKey(EmployeeStatus, null=True, blank=True)
-    department = models.ForeignKey('schedules.Department')
+    department = models.ForeignKey('schedules.Department', null=True, blank=True)
 
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     email = models.CharField(max_length=255, blank=True, null=True)
