@@ -23,7 +23,17 @@ class NotifyNewEmployee(APIView):
     example: {"email": "aaron@aol.com", "profile_id": 5}
     """
     def post(self, request, format=None):
+        employee = EmployeeProfile.objects.filter(id=request.data['profile_id']).first()
+        if not employee:
+            return Response('No employee profile found',
+                            status=status.HTTP_400_BAD_REQUEST)
+        if employee.was_invited:
+            return Response('Employee already invited',
+                            status=status.HTTP_400_BAD_REQUEST)
+
         signup_email(request.data['email'], request.data['profile_id'])
+        employee.was_invited = True
+        employee.save()
         return Response('email sent successfully', status=status.HTTP_200_OK)
 
 
@@ -100,13 +110,13 @@ class UserCreateWithEmployeeProfile(APIView):
     def post(self, request, format=None):
         serializer = UserCreateWithProfileSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            profile = EmployeeProfile.objects.get(id=request.data['profile_id'])
-            # if profile.user.id:
-            #     return Response("Profile already has a user",
-            #                     status=status.HTTP_400_BAD_REQUEST
-            #                     )
+            profile = EmployeeProfile.objects.filter(id=request.data['profile_id']).first()
+            if profile and profile.user:
+                return Response("Profile already has a user",
+                                status=status.HTTP_400_BAD_REQUEST
+                                )
             profile.user = serializer.instance
+            serializer.save()
             profile.save()
 
             return Response(serializer.data)
