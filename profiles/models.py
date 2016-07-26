@@ -70,6 +70,8 @@ class EmployeeProfile(models.Model):
                                               blank=True)
     availability = models.ManyToManyField(Available, blank=True)
 
+    was_invited = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
