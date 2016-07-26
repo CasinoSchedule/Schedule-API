@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from profiles.models import EmployeeProfile
 from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
     TimeOffRequest, Area, Station
+from schedules.permissions import IsEmployee, IsManager
 from schedules.serializers import ScheduleSerializer, \
     WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
     EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
@@ -166,6 +167,7 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
     example GET: schedules/employeemonth/?month=6&year=2016
     """
     serializer_class = EmployeeShiftSerializer
+    # permission_classes = (IsEmployee,)
 
     def get_queryset(self):
 
@@ -211,6 +213,7 @@ class ShiftWeekList(generics.ListAPIView):
     example: weekshift/?date=2016-6-20
     """
     serializer_class = EmployeeShiftSerializer
+    # permission_classes = (IsManager,)
 
     def get_queryset(self):
         if not self.request.query_params.get("date"):
