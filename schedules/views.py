@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from profiles.models import EmployeeProfile
 from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry,\
     CallOut, TimeOffRequest, Area, Station
-from schedules.permissions import IsManager
+from schedules.permissions import IsManager, IsEmployee
 from schedules.sendgrid_functions import email_shift
 from schedules.serializers import WorkDaySerializer, EmployeeShiftSerializer,\
     ShiftCreateSerializer, EOListSerializer, EOEntrySerializer,\
