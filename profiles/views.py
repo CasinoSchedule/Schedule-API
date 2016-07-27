@@ -109,10 +109,12 @@ class ProfileCheck(APIView):
         if EmployeeProfile.objects.filter(user=request.user).first():
             data['type'] = 'employee'
             data['department'] = request.user.employeeprofile.department_id
+            data['department_title'] = request.user.employeeprofile.department.title
             return Response(data)
         elif ManagerProfile.objects.filter(user=request.user).first():
             data['type'] = 'manager'
             data['department'] = request.user.managerprofile.department_id
+            data['department_title'] = request.user.managerprofile.department.title
             return Response(data)
         else:
             return Response({"type": "no profile"})
