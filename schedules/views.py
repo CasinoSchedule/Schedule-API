@@ -212,6 +212,10 @@ class ShiftWeekList(generics.ListAPIView):
         qs = Shift.objects.filter(day__day_date__gte=start,
                                   day__day_date__lte=finish)
 
+        department = self.request.query_params.get('department')
+        if department:
+            qs = qs.filter(employee__department_id=int(department))
+
         return qs
 
 

@@ -97,9 +97,6 @@ class Shift(models.Model):
 
     visible = models.BooleanField(default=False)
 
-    # location = models.CharField(max_length=255, blank=True, null=True)
-    # skills_required = models.CharField(max_length=255)
-    # options_visible = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
