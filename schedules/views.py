@@ -2,9 +2,7 @@ import calendar
 import datetime
 import logging
 
-from django.contrib.auth.models import User
 from rest_framework import generics, status
-from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,7 +12,7 @@ from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut,
 from schedules.permissions import IsManager
 from schedules.sendgrid_functions import email_shift
 from schedules.serializers import WorkDaySerializer, EmployeeShiftSerializer,\
-    UserSerializer, ShiftCreateSerializer, EOListSerializer, EOEntrySerializer,\
+    ShiftCreateSerializer, EOListSerializer, EOEntrySerializer,\
     CallOutSerializer, TimeOffRequestCreateSerializer,\
     TimeOffRequestDisplaySerializer, AreaSerializer, StationSerializer
 
@@ -169,7 +167,8 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
         if not self.request.user.id:
             return []
 
-        year, month = int(self.request.query_params["year"]), int(self.request.query_params["month"])
+        year = int(self.request.query_params["year"])
+        month = int(self.request.query_params["month"])
         first_weekday = datetime.date(year, month, 1).weekday()
         preceding_days = (first_weekday + 1) % 7
         month_days = calendar.monthrange(year, month)[1]
@@ -203,7 +202,8 @@ class ShiftWeekList(generics.ListAPIView):
         if not self.request.query_params.get("date"):
             return []
 
-        current_schedule = get_or_create_schedule(self.request.query_params["date"])
+        current_schedule = get_or_create_schedule(
+            self.request.query_params["date"])
 
         days = current_schedule.workday_set.order_by("day_date")
         start = days.first().day_date
@@ -312,19 +312,6 @@ class ActivateShiftWeek(APIView):
         )
 
 
-class UserListCreate(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [
-        permissions.AllowAny
-    ]
-
-
-class UserDetail(generics.RetrieveUpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
 class RetrieveEOList(APIView):
     """
     Post a date to get the EO list for that day. Will add more parameters
@@ -396,7 +383,8 @@ class TimeOffRequestCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         if not self.request.user.id:
-            return Response("No employee token sent", status=status.HTTP_400_BAD_REQUEST)
+            return Response("No employee token sent",
+                            status=status.HTTP_400_BAD_REQUEST)
 
         employee = self.request.user.employeeprofile
 

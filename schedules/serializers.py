@@ -6,13 +6,6 @@ from schedules.models import WorkDay, Shift, EOList, EOEntry, CallOut, \
     TimeOffRequest, Area, Station
 
 
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = "__all__"
-
-
 class WorkDaySerializer(serializers.ModelSerializer):
 
     class Meta:

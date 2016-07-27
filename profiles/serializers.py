@@ -23,14 +23,16 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
 
 
 class UpdateCreateEmployeeProfileSerializer(serializers.ModelSerializer):
-    availability = serializers.PrimaryKeyRelatedField(many=True,
-                                                      read_only=False,
-                                                      queryset=Available.objects.all(),
-                                                      required=False)
-    regular_days_off = serializers.PrimaryKeyRelatedField(many=True,
-                                                          read_only=False,
-                                                          queryset=DayOfWeek.objects.all(),
-                                                          required=False)
+    availability = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=False,
+        queryset=Available.objects.all(),
+        required=False)
+    regular_days_off = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=False,
+        queryset=DayOfWeek.objects.all(),
+        required=False)
 
     class Meta:
         model = EmployeeProfile
@@ -44,7 +46,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        extra_kwargs = {'password': {'write_only': True},}
+        extra_kwargs = {'password': {'write_only': True}, }
         fields = '__all__'
 
 
@@ -53,7 +55,7 @@ class UserCreateWithProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        extra_kwargs = {'password': {'write_only': True},}
+        extra_kwargs = {'password': {'write_only': True}, }
 
         fields = ('username', 'password', 'profile_id')
 

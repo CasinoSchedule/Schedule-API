@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
 from schedules.views import WorkDayList, WorkDayDetail, EmployeeShiftsByMonth, ShiftWeekList, ShiftCreateManyByDate, ActivateShiftWeek, \
     RetrieveEOList, CreateEOEntry, EOListList, CallOutListCreate, \
     TimeOffRequestCreate, TimeOffRequestList, AreaListCreate, StationListCreate

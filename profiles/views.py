@@ -1,15 +1,17 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User
 
 from rest_framework.response import Response
-from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from schedules.permissions import IsManager
 from schedules.sendgrid_functions import signup_email
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from profiles.serializers import EmployeeProfileSerializer, \
-    UpdateCreateEmployeeProfileSerializer, UserCreateWithProfileSerializer, UserSerializer
+    UpdateCreateEmployeeProfileSerializer, UserCreateWithProfileSerializer,\
+    UserSerializer
 
 """
 Views for updating and creating profiles
@@ -22,8 +24,12 @@ class NotifyNewEmployee(APIView):
     as a new user, linked with that profile.
     example: {"email": "aaron@aol.com", "profile_id": 5}
     """
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     def post(self, request, format=None):
-        employee = EmployeeProfile.objects.filter(id=request.data['profile_id']).first()
+        employee = EmployeeProfile.objects.filter(
+            id=request.data['profile_id']
+        ).first()
         if not employee:
             return Response('No employee profile found',
                             status=status.HTTP_400_BAD_REQUEST)
@@ -42,6 +48,7 @@ class EmployeeProfileListCreateView(generics.ListCreateAPIView):
     Use ?shift_title=1 to filter for employees on graveyard.
     """
     serializer_class = UpdateCreateEmployeeProfileSerializer
+    #permission_classes = (IsManager,)
 
     def get_queryset(self):
         qs = EmployeeProfile.objects.all().order_by('created_at')
@@ -67,6 +74,8 @@ class EmployeeProfileUpdate(APIView):
     For availability send a list of integers, 1=grave, 2=day, 3=swing
     """
 
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
     def put(self, request, pk):
 
         try:
@@ -74,7 +83,8 @@ class EmployeeProfileUpdate(APIView):
         except EmployeeProfile.DoesNotExist as e:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UpdateCreateEmployeeProfileSerializer(profile, request.data)
+        serializer = UpdateCreateEmployeeProfileSerializer(profile,
+                                                           request.data)
 
         if serializer.is_valid():
             serializer.save()
@@ -107,10 +117,14 @@ class UserCreateWithEmployeeProfile(APIView):
     New user creation for those with an existing employee profile object.
     POST name, password, and employee profile_id.
     """
+
     def post(self, request, format=None):
         serializer = UserCreateWithProfileSerializer(data=request.data)
         if serializer.is_valid():
-            profile = EmployeeProfile.objects.filter(id=request.data['profile_id']).first()
+            profile = EmployeeProfile.objects.filter(
+                id=request.data['profile_id']
+            ).first()
+
             if profile and profile.user:
                 return Response("Profile already has a user",
                                 status=status.HTTP_400_BAD_REQUEST
@@ -123,6 +137,6 @@ class UserCreateWithEmployeeProfile(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserList(generics.ListAPIView):
+class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
