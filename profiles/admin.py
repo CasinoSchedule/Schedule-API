@@ -4,8 +4,8 @@ from profiles.models import ManagerProfile, EmployeeProfile, Available
 
 @admin.register(ManagerProfile)
 class ManagerProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "position_title", "user_name", "department", "created_at",
-                    "modified_at")
+    list_display = ("id", "first_name", "last_name", "position_title",
+                    "user_name", "department", "created_at", "modified_at")
 
 
 @admin.register(EmployeeProfile)

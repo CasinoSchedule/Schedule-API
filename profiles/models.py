@@ -35,8 +35,8 @@ class ManagerProfile(models.Model):
     position_title = models.CharField(max_length=255)
     department = models.ForeignKey('schedules.Department', null=True, blank=True)
 
-    # first_name = models.CharField(max_length=255)
-    # last_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     # mi = models.CharField(max_length=1, null=True, blank=True)
     # cloudinary_image
 
