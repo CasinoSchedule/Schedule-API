@@ -43,6 +43,13 @@ class ManagerProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def user_name(self):
+        if hasattr(self, 'user'):
+            return self.user.username
+        else:
+            return False
+
 
 class EmployeeProfile(models.Model):
 

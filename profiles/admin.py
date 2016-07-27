@@ -4,7 +4,7 @@ from profiles.models import ManagerProfile, EmployeeProfile, Available
 
 @admin.register(ManagerProfile)
 class ManagerProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "position_title", "department", "created_at",
+    list_display = ("id", "position_title", "user_name", "department", "created_at",
                     "modified_at")
 
 
