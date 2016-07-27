@@ -1,28 +1,24 @@
-from django.shortcuts import render
-from rest_framework import generics, status
-import datetime
 import calendar
-from rest_framework.response import Response
-from django.db.models import Count
-from django.contrib.auth.models import User
+import datetime
 import logging
 
+from django.contrib.auth.models import User
+from rest_framework import generics, status
+from rest_framework import permissions
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
 from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
     TimeOffRequest, Area, Station
-from schedules.permissions import IsEmployee, IsManager
-from schedules.serializers import ScheduleSerializer, \
-    WorkDaySerializer, EmployeeShiftSerializer, ShiftSerializer, \
-    EmployeeShiftScheduleSerializer, MultipleShiftSerializer, \
-    ShiftByDateSerializer, UserSerializer, ShiftCreateSerializer, \
-    EOListSerializer, EOEntrySerializer, CallOutSerializer, \
-    TimeOffRequestCreateSerializer, TimeOffRequestDisplaySerializer, AreaSerializer, StationSerializer
+from schedules.permissions import IsManager
+from schedules.sendgrid_functions import email_shift
+from schedules.serializers import WorkDaySerializer, EmployeeShiftSerializer,\
+    UserSerializer, ShiftCreateSerializer, EOListSerializer, EOEntrySerializer,\
+    CallOutSerializer, TimeOffRequestCreateSerializer,\
+    TimeOffRequestDisplaySerializer, AreaSerializer, StationSerializer
 
 from schedules.twilio_functions import twilio_shift
-from schedules.sendgrid_functions import email_shift
-
 
 logger = logging.getLogger("debug_logger")
 
@@ -90,7 +86,6 @@ def print_date(date):
     return date.strftime('%A, %B %d')
 
 
-# Note: This is bad code. The notify functions should be refactored later.
 def phone_notify_employees(data):
 
     employee_ids = set([x.employee.id for x in data])
@@ -192,17 +187,6 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
         return qs.order_by("day__day_date")
 
 
-class ListCreateShift(generics.ListCreateAPIView):
-    serializer_class = ShiftSerializer
-    queryset = Shift.objects.all()
-    #authentication_classes = []
-
-
-class ShiftRetrieveUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ShiftSerializer
-    queryset = Shift.objects.all()
-
-
 class ShiftWeekList(generics.ListAPIView):
     """
     Accepts a date querystring. Creates or retrieves the dates for that work
@@ -219,11 +203,6 @@ class ShiftWeekList(generics.ListAPIView):
         if not self.request.query_params.get("date"):
             return []
 
-        # dates = self.request.query_params["date"].split("-")
-        # dates = [int(x) for x in dates]
-        # working_date = datetime.date(dates[0], dates[1], dates[2])
-        # current_schedule = get_or_create_schedule(working_date)
-
         current_schedule = get_or_create_schedule(self.request.query_params["date"])
 
         days = current_schedule.workday_set.order_by("day_date")
@@ -234,11 +213,6 @@ class ShiftWeekList(generics.ListAPIView):
                                   day__day_date__lte=finish)
 
         return qs
-
-
-class ScheduleDetail(generics.RetrieveAPIView):
-    serializer_class = ScheduleSerializer
-    queryset = Schedule.objects.all()
 
 
 class WorkDayList(generics.ListAPIView):
@@ -266,13 +240,15 @@ class ShiftCreateManyByDate(APIView):
      ]
     """
 
+    #permission_classes = (IsManager,)
+
     def post(self, request, format=None):
 
         # If starting time is "" then delete shift if it exists.
 
         updated_data = []
         for item in request.data:
-
+            # Block past shifts from being changed.
             # if is_past(item['day'], item['starting_time']):
             #     return Response("Changing past shifts is forbidden.",
             #                     status=status.HTTP_403_FORBIDDEN)
@@ -309,6 +285,8 @@ class ActivateShiftWeek(APIView):
     example: {"date": "2016-6-20"}
     """
 
+    # permission_classes = (IsManager,)
+
     def post(self, request, format=None):
         schedule = get_or_create_schedule(request.data['date'])
         first = schedule.workday_set.first()
@@ -337,9 +315,9 @@ class ActivateShiftWeek(APIView):
 class UserListCreate(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # permission_classes = [
-    #     permissions.AllowAny
-    # ]
+    permission_classes = [
+        permissions.AllowAny
+    ]
 
 
 class UserDetail(generics.RetrieveUpdateAPIView):
@@ -445,6 +423,7 @@ class AreaListCreate(generics.ListCreateAPIView):
     """
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
+    permission_classes = (IsManager,)
 
 
 class StationListCreate(generics.ListCreateAPIView):
@@ -456,42 +435,4 @@ class StationListCreate(generics.ListCreateAPIView):
     """
     queryset = Station.objects.all()
     serializer_class = StationSerializer
-
-
-
-
-
-# class ShiftCreateByDate(generics.CreateAPIView):
-#     """
-#     Create a Shift object using a date, rather than a WorkDay id number.
-#     example: {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1}
-#     """
-#     queryset = Shift.objects.all()
-#     serializer_class = ShiftByDateSerializer
-#
-#     def perform_create(self, serializer):
-#         date = self.request.data["day"]
-#         day = WorkDay.objects.get(day_date=date)
-#         serializer.save(day=day)
-
-
-#
-# class ShiftCreateMany(APIView):
-#     """
-#     Mark, I can change the inputs to date objects if that would be easier.
-#
-#     Create multiple schedules with one POST request.
-#     Example: [
-#     {"starting_time": "11:00:00", "day": 20, "employee": 1},
-#      {"starting_time": "11:00:00", "day": 21, "employee": 1}
-#      ]
-#     """
-#
-#     def post(self, request, format=None):
-#         serializer = ShiftCreateSerializer(data=request.data, many=True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+    permission_classes = (IsManager,)

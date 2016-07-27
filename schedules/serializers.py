@@ -1,9 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from profiles.models import EmployeeProfile
 from profiles.serializers import EmployeeProfileSerializer
-from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
+from schedules.models import WorkDay, Shift, EOList, EOEntry, CallOut, \
     TimeOffRequest, Area, Station
 
 
@@ -26,16 +25,6 @@ class WorkDayDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkDay
         fields = ('day_date',)
-
-
-class ScheduleSerializer(serializers.ModelSerializer):
-    workday_set = WorkDaySerializer(many=True, read_only=True)
-    starting = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Schedule
-        fields = ("starting", "status", "manager", "created_at", "modified_at",
-                  "workday_set")
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -85,48 +74,6 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
         return shift
 
 
-class ShiftSerializer(serializers.ModelSerializer):
-
-    day = WorkDaySerializer(read_only=True)
-
-    class Meta:
-        model = Shift
-        fields = "__all__"
-
-
-class MultipleShiftSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Shift
-        fields = "__all__"
-
-
-class EmployeeShiftScheduleSerializer(serializers.ModelSerializer):
-
-    #shift_set = ShiftSerializer(many=True, read_only=True)
-    test = serializers.ReadOnlyField()
-
-    class Meta:
-        model = EmployeeProfile
-        fields = "__all__"
-
-
-class ShiftByDateSerializer(serializers.ModelSerializer):
-
-    day = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = Shift
-        fields = "__all__"
-
-
-class EOShiftSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Shift
-        fields = ('employee', 'starting_time')
-
-
 class EOEntrySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -150,8 +97,6 @@ class CallOutSerializer(serializers.ModelSerializer):
 
 
 class TimeOffRequestCreateSerializer(serializers.ModelSerializer):
-    """
-    """
 
     employee = serializers.PrimaryKeyRelatedField(read_only=True)
     days = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
