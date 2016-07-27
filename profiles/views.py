@@ -48,7 +48,7 @@ class EmployeeProfileListCreateView(generics.ListCreateAPIView):
     Use ?shift_title=1 to filter for employees on graveyard.
     """
     serializer_class = UpdateCreateEmployeeProfileSerializer
-    #permission_classes = (IsManager,)
+    permission_classes = (IsManager,)
 
     def get_queryset(self):
         qs = EmployeeProfile.objects.all().order_by('created_at')

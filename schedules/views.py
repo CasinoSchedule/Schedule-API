@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
-from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry, CallOut, \
-    TimeOffRequest, Area, Station
+from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry,\
+    CallOut, TimeOffRequest, Area, Station
 from schedules.permissions import IsManager
 from schedules.sendgrid_functions import email_shift
 from schedules.serializers import WorkDaySerializer, EmployeeShiftSerializer,\
@@ -160,7 +160,7 @@ class EmployeeShiftsByMonth(generics.ListAPIView):
     example GET: schedules/employeemonth/?month=6&year=2016
     """
     serializer_class = EmployeeShiftSerializer
-    # permission_classes = (IsEmployee,)
+    permission_classes = (IsEmployee,)
 
     def get_queryset(self):
 
@@ -196,7 +196,7 @@ class ShiftWeekList(generics.ListAPIView):
     example: weekshift/?date=2016-6-20
     """
     serializer_class = EmployeeShiftSerializer
-    # permission_classes = (IsManager,)
+    permission_classes = (IsManager,)
 
     def get_queryset(self):
         if not self.request.query_params.get("date"):
@@ -240,7 +240,7 @@ class ShiftCreateManyByDate(APIView):
      ]
     """
 
-    #permission_classes = (IsManager,)
+    permission_classes = (IsManager,)
 
     def post(self, request, format=None):
 
@@ -285,7 +285,7 @@ class ActivateShiftWeek(APIView):
     example: {"date": "2016-6-20"}
     """
 
-    # permission_classes = (IsManager,)
+    permission_classes = (IsManager,)
 
     def post(self, request, format=None):
         schedule = get_or_create_schedule(request.data['date'])
