@@ -101,13 +101,19 @@ class ProfileCheck(APIView):
     """
 
     def get(self, request, format=None):
+        data = {}
+
         if not request.user.id:
             return Response({"type": "no token"})
 
         if EmployeeProfile.objects.filter(user=request.user).first():
-            return Response({"type": "employee"})
+            data['type'] = 'employee'
+            data['department'] = request.user.employeeprofile.department_id
+            return Response(data)
         elif ManagerProfile.objects.filter(user=request.user).first():
-            return Response({"type": "manager"})
+            data['type'] = 'manager'
+            data['department'] = request.user.managerprofile.department_id
+            return Response(data)
         else:
             return Response({"type": "no profile"})
 
