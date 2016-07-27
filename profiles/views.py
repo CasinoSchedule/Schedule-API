@@ -45,17 +45,24 @@ class NotifyNewEmployee(APIView):
 
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):
     """
-    Use ?shift_title=1 to filter for employees on graveyard.
+    Use ?shift_title=1&department=1 to filter for employees on graveyard in
+    department 1.
     """
     serializer_class = UpdateCreateEmployeeProfileSerializer
     permission_classes = (IsManager,)
 
     def get_queryset(self):
         qs = EmployeeProfile.objects.all().order_by('created_at')
+
         shift_title = self.request.query_params.get('shift_title')
         if shift_title:
             shift_title = [int(x) for x in shift_title.split(',')]
             qs = qs.filter(availability__in=shift_title)
+
+        department = self.request.query_params.get('department')
+        if department:
+            qs = qs.filter(department=int(department))
+
         return qs
 
 
