@@ -5,9 +5,12 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
+import datetime
+
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from schedules.models import WorkDay, Shift
+from schedules.views import most_recent_monday, next_monday
 
 
 class TestSetup(APITestCase):
@@ -28,6 +31,55 @@ class TestSetup(APITestCase):
                                        )
 
 
+class HelperFunctionTests(TestCase):
+
+    def test_create_schedule(self):
+        pass
+
+    def test_get_or_create_schedule(self):
+        pass
+
+    def test_most_recent_monday(self):
+        thursday = datetime.date(2016, 7, 28)
+        monday = datetime.date(2016, 7, 25)
+        sunday = datetime.date(2016, 7, 1)
+
+        self.assertEqual(most_recent_monday(thursday),
+                         datetime.date(2016, 7, 25))
+        self.assertEqual(most_recent_monday(monday),
+                         monday)
+        self.assertEqual(most_recent_monday(sunday),
+                         datetime.date(2016, 6, 27))
+
+    def test_next_monday(self):
+        thursday = datetime.date(2016, 7, 28)
+        monday = datetime.date(2016, 7, 25)
+        sunday = datetime.date(2016, 7, 1)
+
+        self.assertEqual(next_monday(thursday),
+                         datetime.date(2016, 8, 1))
+        self.assertEqual(next_monday(monday),
+                         monday)
+        self.assertEqual(next_monday(sunday),
+                         datetime.date(2016, 7, 4))
+
+    def test_print_time(self):
+        pass
+
+    def test_print_date(self):
+        pass
+
+    # test phone notify
+    # test email notify
+
+    def test_date_string_to_datetime(self):
+        pass
+
+    def test_is_past(self):
+        pass
+
+
+
 class EmployeeMonthTest(TestSetup):
 
     def setUp(self):
@@ -42,7 +94,6 @@ class EmployeeMonthTest(TestSetup):
         self.scheduler_url = reverse('multiple_shift_by_date')
 
     def test_initial_shift(self):
-        a=1
 
         response = self.client.get(self.employee_url + '?month=6&year=2016',
                                    format='json')

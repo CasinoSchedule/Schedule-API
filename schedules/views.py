@@ -49,8 +49,14 @@ def most_recent_monday(date):
 
 
 def next_monday(date):
-    one_day = datetime.timedelta(days=1)
-    return date + ((7 - date.weekday()) * one_day)
+    """
+    Return the following monday, or param if date is monday.
+    """
+    if date.weekday():
+        one_day = datetime.timedelta(days=1)
+        return date + ((7 - date.weekday()) * one_day)
+    else:
+        return date
 
 
 def get_or_create_schedule(date):
