@@ -6,7 +6,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from schedules.permissions import IsManager
-from schedules.sendgrid_functions import signup_email
+from schedules.sendgrid_functions import signup_email, general_email
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from profiles.serializers import EmployeeProfileSerializer, \
@@ -157,3 +157,25 @@ class UserCreateWithEmployeeProfile(APIView):
 class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class MessageEmployees(APIView):
+    """
+    POST email information to send to all employees in a department.
+    example: {"department": 1, "subject": "test", "body": "blah"}
+    """
+
+    def post(self, request, format=None):
+        subject = request.data['subject']
+        body = request.data['body']
+        employees = EmployeeProfile.objects.filter(
+            department=request.data['department']
+        )
+        try:
+            for employee in employees:
+                if employee.email:
+                    general_email(body=body,subject=subject,email=employee.email)
+            return Response('emails sent', status=status.HTTP_200_OK)
+        except:
+            return Response('email error',
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
