@@ -427,6 +427,12 @@ class AreaListCreate(generics.ListCreateAPIView):
     permission_classes = (IsManager,)
 
 
+class AreaDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+    permission_classes = (IsManager,)
+
+
 class StationListCreate(generics.ListCreateAPIView):
     """
     GET returns a list of all stations.
@@ -434,6 +440,12 @@ class StationListCreate(generics.ListCreateAPIView):
     Optional fields: must_fill, grave_start, day_start, swing_start
     example: {"title": "test area", area: 1}
     """
+    queryset = Station.objects.all()
+    serializer_class = StationSerializer
+    permission_classes = (IsManager,)
+
+
+class StationDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
     permission_classes = (IsManager,)

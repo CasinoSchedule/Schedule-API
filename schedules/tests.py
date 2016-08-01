@@ -9,7 +9,7 @@ import datetime
 
 
 from profiles.models import EmployeeProfile, ManagerProfile
-from schedules.models import WorkDay, Shift
+from schedules.models import WorkDay, Shift, Department
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule
 
@@ -25,10 +25,8 @@ class TestSetup(APITestCase):
                                        email="123"
                                        )
 
-    def new_manager(self, name):
-        user = User.objects.create_user(username=name,
-                                        password='blahblah')
-        ManagerProfile.objects.create(user=user,
+    def new_manager(self, user):
+        return ManagerProfile.objects.create(user=user,
                                        position_title="test"
                                        )
 
@@ -204,6 +202,34 @@ class ShiftWeekTest(TestSetup):
         response = self.client.get(self.url + '?date=2016-6-27')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 6)
+
+
+class AreaTest(TestSetup):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='test user',
+                                             password='blahblah')
+        self.manager = self.new_manager(self.user)
+        self.list_url = reverse('area_list_create')
+        self.department = Department.objects.create(title='test')
+
+    def test_area_list_create(self):
+
+        not_allowed = self.client.get(self.list_url)
+        self.assertEqual(not_allowed.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        token = Token.objects.get(user_id=self.user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        data = {'title': 'test_area', 'department': self.department.id}
+        post_response = self.client.post(self.list_url, data, format='json')
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+
 
 
 
