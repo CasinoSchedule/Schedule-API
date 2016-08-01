@@ -33,9 +33,9 @@ class NotifyNewEmployee(APIView):
         if not employee:
             return Response('No employee profile found',
                             status=status.HTTP_400_BAD_REQUEST)
-        if employee.was_invited:
-            return Response('Employee already invited',
-                            status=status.HTTP_400_BAD_REQUEST)
+        # if employee.was_invited:
+        #     return Response('Employee already invited',
+        #                     status=status.HTTP_400_BAD_REQUEST)
 
         signup_email(request.data['email'], request.data['profile_id'])
         employee.was_invited = True

@@ -28,6 +28,9 @@ class StationSerializer(serializers.ModelSerializer):
 
 class AreaSerializer(serializers.ModelSerializer):
 
+    #station_set = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    station_set = StationSerializer(read_only=True, many=True)
+
     class Meta:
         model = Area
         fields = '__all__'

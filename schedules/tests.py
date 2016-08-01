@@ -13,6 +13,8 @@ from schedules.models import WorkDay, Shift
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule
 
+# test is_past
+
 
 class TestSetup(APITestCase):
 
@@ -156,7 +158,6 @@ class EmployeeMonthTest(TestSetup):
 
         unauth_response = self.client.post(self.scheduler_url, data, format='json')
         self.assertEqual(unauth_response.status_code, status.HTTP_403_FORBIDDEN)
-
 
         response = self.client.get(self.employee_url + '?month=6&year=2016',
                                    format='json')
