@@ -74,6 +74,7 @@ class EmployeeProfileGetDelete(generics.RetrieveDestroyAPIView):
     serializer_class = EmployeeProfileSerializer
 
 
+
 class EmployeeProfileUpdate(APIView):
     """
     Update employee profile.
@@ -144,8 +145,9 @@ class UserCreateWithEmployeeProfile(APIView):
                 return Response("Profile already has a user",
                                 status=status.HTTP_400_BAD_REQUEST
                                 )
-            profile.user = serializer.instance
             serializer.save()
+            profile.user = serializer.instance
+
             profile.save()
 
             return Response(serializer.data)

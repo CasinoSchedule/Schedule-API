@@ -81,13 +81,14 @@ def get_or_create_schedule(date):
 
 def print_time(time):
     """
-    time: a time field string, 11:00:00
+    :param time: datetime.time object.
+    :return: Formatted time string.
     """
-    return time.strftime("%I:%M %p")
+    return time.strftime("%-I:%M %p")
 
 
 def print_date(date):
-    return date.strftime('%A, %B %d')
+    return date.strftime('%A, %B %-d')
 
 
 def phone_notify_employees(data):
@@ -150,7 +151,9 @@ def date_string_to_datetime(date_string, time=None):
 
 def is_past(date, time):
     """
-    Return True if the date and time passed in is later than current moment.
+    :param date: calendar_date, ie. '2016-6-20'
+    :param time: time string, ie. '11:00'
+    :return: True if the date and time passed in is later than current moment.
     """
     requested_time = date_string_to_datetime(date, time)
     return datetime.datetime.now() > requested_time
@@ -245,8 +248,8 @@ class ShiftCreateManyByDate(APIView):
 
      To add a station or area, include an id.
     Example: [
-    {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
-     {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
+    {"starting_time": "11:00", "day": "2016-6-20", "employee": 1},
+     {"starting_time": "11:00", "day": "2016-6-21", "employee": 1}
      ]
     """
 
