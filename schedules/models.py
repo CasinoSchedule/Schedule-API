@@ -123,6 +123,10 @@ class Shift(models.Model):
         else:
             return False
 
+    @property
+    def datetime_obj(self):
+        return datetime.datetime.combine(self.day.day_date, self.starting_time)
+
     def __str__(self):
         return "{}, {}, {}".format(self.id, self.employee, self.day)
 

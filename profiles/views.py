@@ -1,12 +1,14 @@
 from django.contrib.auth.models import User
-
+import datetime
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from schedules.models import Shift
 from schedules.permissions import IsManager
 from schedules.sendgrid_functions import signup_email, general_email
+from schedules.views import date_string_to_datetime
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from profiles.serializers import EmployeeProfileSerializer, \
@@ -178,4 +180,46 @@ class MessageEmployees(APIView):
             return Response('emails sent', status=status.HTTP_200_OK)
         except:
             return Response('email error',
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class MessageAvailableEmployees(APIView):
+    """
+    Message all employees that are available to work a given time and date.
+    For now an employee will be available if they do not have any other
+    start times within 24 hours. We will add department and shift filters
+    later.
+
+    example: {"date": "2016-6-20", "time": "11:00", "department": 1}
+    """
+
+    def post(self, request, format=None):
+        working_date = date_string_to_datetime(request.data['date'],
+                                               request.data['time'])
+        one_day = datetime.timedelta(days=1)
+        after = working_date + one_day
+        before = working_date - one_day
+
+        qs = Shift.objects.filter(day__day_date__gte=before,
+                                  day__day_date__lte=after)
+        qs = qs.exclude(day__day_date=after,
+                        starting_time__lte=working_date.time())
+        qs = qs.exclude(day__day_date=before,
+                        starting_time__gte=working_date.time())
+        employees = qs.values('employee').distinct()
+        employee_ids = [x['employee'] for x in employees]
+        available_employees = EmployeeProfile.objects.filter(department=request.data['department'])
+        available_employees = available_employees.exclude(id__in=employee_ids)
+        try:
+            subject = 'Shift available'
+            body = 'There is a new shift available on {} at {}. If you would ' \
+                   'like to work please contact your manager.'.format(
+                request.data['date'], request.data['time'])
+            for employee in available_employees:
+                if employee.email:
+                    general_email(body=body, subject=subject,
+                                  email=employee.email)
+            return Response('emails sent', status=status.HTTP_200_OK)
+        except:
+            return Response('email failed',
                             status=status.HTTP_503_SERVICE_UNAVAILABLE)
