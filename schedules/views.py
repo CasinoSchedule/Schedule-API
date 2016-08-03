@@ -301,6 +301,8 @@ class ActivateShiftWeek(APIView):
     permission_classes = (IsManager,)
 
     def post(self, request, format=None):
+        email_success, phone_success = True, True
+
         schedule = get_or_create_schedule(request.data['date'])
         first = schedule.workday_set.first()
         last = schedule.workday_set.last()
@@ -309,8 +311,15 @@ class ActivateShiftWeek(APIView):
                                       visible=False
                                       ).all()
         logger.debug("number shifts: {}".format(shifts.count()))
-        phone_notify_employees(shifts)
-        email_notify_employees(shifts)
+
+        try:
+            phone_notify_employees(shifts)
+        except:
+            phone_success = False
+        try:
+            email_notify_employees(shifts)
+        except:
+            email_success = False
         amount = shifts.count()
         shifts.update(visible=True)
 
@@ -320,7 +329,9 @@ class ActivateShiftWeek(APIView):
         logger.debug("amount: {}".format(amount))
 
         return Response(
-            {'amount updated': amount},
+            {'amount updated': amount,
+             'phone_success': phone_success,
+             'email_success': email_success},
             status=status.HTTP_200_OK
         )
 

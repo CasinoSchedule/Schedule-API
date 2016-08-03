@@ -102,3 +102,11 @@
 [DEBUG] 2016-07-22 14:30:18,842 views Starting day: 2016-09-05
 [DEBUG] 2016-07-22 14:30:18,843 views Ending day: 2016-09-11
 [DEBUG] 2016-07-22 14:30:18,843 views amount: 1
+[DEBUG] 2016-08-03 14:19:11,137 views number shifts: 1
+[DEBUG] 2016-08-03 14:19:11,198 views Starting day: 2016-07-25
+[DEBUG] 2016-08-03 14:19:11,198 views Ending day: 2016-07-31
+[DEBUG] 2016-08-03 14:19:11,198 views amount: 1
+[DEBUG] 2016-08-03 14:26:40,421 views number shifts: 0
+[DEBUG] 2016-08-03 14:26:40,444 views Starting day: 2016-07-25
+[DEBUG] 2016-08-03 14:26:40,444 views Ending day: 2016-07-31
+[DEBUG] 2016-08-03 14:26:40,444 views amount: 0
