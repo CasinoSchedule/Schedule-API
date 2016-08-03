@@ -25,7 +25,13 @@ class Available(models.Model):
 
 
 class EmployeeStatus(models.Model):
+    """
+    ['Full-time', 'On-call', or 'Extra Board']
+    """
     title = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.title
 
 
 class ManagerProfile(models.Model):
@@ -64,7 +70,9 @@ class EmployeeProfile(models.Model):
     employee_id = models.CharField(max_length=255, null=True, blank=True)
     position_title = models.CharField(max_length=255, null=True, blank=True)
 
+    # Full-time, On-call, or Extra Board
     employment_status = models.ForeignKey(EmployeeStatus, null=True, blank=True)
+
     department = models.ForeignKey('schedules.Department', null=True, blank=True)
 
     phone_number = models.CharField(max_length=255, blank=True, null=True)

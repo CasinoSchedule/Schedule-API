@@ -1,5 +1,6 @@
 from django.contrib import admin
-from profiles.models import ManagerProfile, EmployeeProfile, Available
+from profiles.models import ManagerProfile, EmployeeProfile, Available, \
+    EmployeeStatus
 
 
 @admin.register(ManagerProfile)
@@ -12,7 +13,7 @@ class ManagerProfileAdmin(admin.ModelAdmin):
 class EmployeeProfileAdmin(admin.ModelAdmin):
     list_display = (
         "id", "user", "first_name", "last_name", "department", "employee_id",
-        "position_title", "phone_number", "email", "phone_notifications",
+        "position_title", "employment_status", "phone_number", "email", "phone_notifications",
         "email_notifications", "days_off", 'shift_title', "created_at",
         "modified_at"
     )
@@ -20,4 +21,9 @@ class EmployeeProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Available)
 class AvailableAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title')
+
+
+@admin.register(EmployeeStatus)
+class EmployeeStatusAdmin(admin.ModelAdmin):
     list_display = ('id', 'title')
