@@ -127,6 +127,10 @@ class Shift(models.Model):
     def datetime_obj(self):
         return datetime.datetime.combine(self.day.day_date, self.starting_time)
 
+    @property
+    def epoch_milliseconds(self):
+        return datetime.datetime.timestamp(self.datetime_obj)
+
     def __str__(self):
         return "{}, {}, {}".format(self.id, self.employee, self.day)
 

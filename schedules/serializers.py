@@ -45,7 +45,7 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
         model = Shift
         fields = ("id", "starting_time", "area", "station", "length",
                   "visible", "called_out", "employee", "calendar_date",
-                  "end_time", "day")
+                  "end_time", "day", 'epoch_milliseconds')
 
 
 class ShiftCreateSerializer(serializers.ModelSerializer):

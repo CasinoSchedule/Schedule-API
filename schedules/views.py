@@ -159,6 +159,15 @@ def is_past(date, time):
     return datetime.datetime.now() > requested_time
 
 
+def get_week_shifts(date, department=None):
+    """
+    :param date: date string
+    :param department: optional department id number
+    :return: a queryset of all shifts for a given week + department
+    """
+    pass
+
+
 class EmployeeShiftsByMonth(generics.ListAPIView):
     """
     Takes a month and year and returns schedules for the requesting employee.
@@ -460,3 +469,16 @@ class StationDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
     permission_classes = (IsManager,)
+
+
+class AutoPopulateWeek(APIView):
+    """
+    A simple auto-populate feature which copies the previous week.
+    POST a department and a date from the week of the new shifts.
+    """
+    # modularize code to get all shifts for week and department
+    # clear all shifts for current week
+    # get all shifts for previous week
+    # copy them, adding 7 days to date.
+    pass
+
