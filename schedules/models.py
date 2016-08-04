@@ -129,7 +129,7 @@ class Shift(models.Model):
 
     @property
     def epoch_milliseconds(self):
-        return datetime.datetime.timestamp(self.datetime_obj)
+        return datetime.datetime.timestamp(self.datetime_obj) * 1000
 
     def __str__(self):
         return "{}, {}, {}".format(self.id, self.employee, self.day)
