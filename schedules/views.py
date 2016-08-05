@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import logging
+import random
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -165,7 +166,47 @@ def get_week_shifts(date, department=None):
     :param department: optional department id number
     :return: a queryset of all shifts for a given week + department
     """
-    pass
+    current_schedule = get_or_create_schedule(
+        date)
+
+    days = current_schedule.workday_set.order_by("day_date")
+    start = days.first().day_date
+    finish = days.last().day_date
+
+    qs = Shift.objects.filter(day__day_date__gte=start,
+                              day__day_date__lte=finish)
+
+    if department:
+        qs = qs.filter(employee__department_id=int(department))
+    return qs
+
+
+def change_string_date(date, days):
+    """
+    :param date: string date
+    :param days: number of days to change the date by
+    :return: modified string date
+    """
+    change = datetime.timedelta(days=days)
+    date_obj = date_string_to_datetime(date)
+    updated_date = date_obj + change
+    return "{}-{}-{}".format(updated_date.year,
+                             updated_date.month,
+                             updated_date.day)
+
+
+def update_shift_date(shift, days):
+    """
+    :param shift: A Shift object.
+    :param days: Number of days to add to the Shift date.
+    :return: An updated Shift saved to the database.
+    """
+
+    current = shift.day
+    new_date = current.day_date + datetime.timedelta(days=days)
+    new_workday = WorkDay.objects.get(day_date=new_date)
+    shift.day = new_workday
+    shift.save()
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
@@ -217,22 +258,11 @@ class ShiftWeekList(generics.ListAPIView):
     permission_classes = (IsManager,)
 
     def get_queryset(self):
-        if not self.request.query_params.get("date"):
+        date = self.request.query_params.get('date')
+
+        if not date:
             return []
-
-        current_schedule = get_or_create_schedule(
-            self.request.query_params["date"])
-
-        days = current_schedule.workday_set.order_by("day_date")
-        start = days.first().day_date
-        finish = days.last().day_date
-
-        qs = Shift.objects.filter(day__day_date__gte=start,
-                                  day__day_date__lte=finish)
-
-        department = self.request.query_params.get('department')
-        if department:
-            qs = qs.filter(employee__department_id=int(department))
+        qs = get_week_shifts(date, self.request.query_params.get('department'))
 
         return qs
 
@@ -475,10 +505,44 @@ class AutoPopulateWeek(APIView):
     """
     A simple auto-populate feature which copies the previous week.
     POST a department and a date from the week of the new shifts.
+    methods: duplicate - repeat previous shift,
+    station - randomly change employees, station and time pairs stay the same.
+    example: POST {'date': '2016-6-20', deparment: 1, 'method': 'duplicate'}
+     to schedules/auto/ to create shifts for that week.
     """
-    # modularize code to get all shifts for week and department
-    # clear all shifts for current week
-    # get all shifts for previous week
-    # copy them, adding 7 days to date.
-    pass
+    permission_classes = (IsManager,)
 
+    def post(self, request, format=None):
+        # only doing a week right now
+        day_change = 7
+
+        current_date = self.request.data.get('date')
+        current_schedule = get_or_create_schedule(current_date)
+        old_shifts = get_week_shifts(current_date,
+                                     self.request.data.get('department'))
+        old_shifts.delete()
+
+        previous_date = change_string_date(current_date, -day_change)
+        previous_shifts = get_week_shifts(previous_date,
+                                          self.request.data.get('department')
+                                          )
+
+        if self.request.data.get('method') == 'duplicate':
+            for shift in previous_shifts:
+                shift.id = None
+                update_shift_date(shift, day_change)
+
+            return Response('New shifts created',
+                            status=status.HTTP_201_CREATED)
+
+        elif self.request.data.get('method') == 'station':
+            employee_id_list = previous_shifts.values_list('employee', flat=True)
+            employee_id_list = list(employee_id_list)
+            random.shuffle(employee_id_list)
+            for i, shift in enumerate(previous_shifts):
+                shift.id = None
+                shift.employee = EmployeeProfile.objects.get(id=employee_id_list[i])
+                update_shift_date(shift, day_change)
+            return Response('New shifts created', status=status.HTTP_201_CREATED)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
