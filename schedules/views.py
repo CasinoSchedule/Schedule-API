@@ -530,6 +530,7 @@ class AutoPopulateWeek(APIView):
         if self.request.data.get('method') == 'duplicate':
             for shift in previous_shifts:
                 shift.id = None
+                shift.visible = False
                 update_shift_date(shift, day_change)
 
             return Response('New shifts created',
@@ -541,6 +542,7 @@ class AutoPopulateWeek(APIView):
             random.shuffle(employee_id_list)
             for i, shift in enumerate(previous_shifts):
                 shift.id = None
+                shift.visible = False
                 shift.employee = EmployeeProfile.objects.get(id=employee_id_list[i])
                 update_shift_date(shift, day_change)
             return Response('New shifts created', status=status.HTTP_201_CREATED)
