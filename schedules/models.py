@@ -1,6 +1,18 @@
 from django.db import models
 import datetime
-from profiles.models import ManagerProfile, EmployeeProfile
+from profiles.models import ManagerProfile, EmployeeProfile, Available
+
+
+def print_time(time):
+    """
+    :param time: datetime.time object.
+    :return: Formatted time string.
+    """
+    return time.strftime("%-I:%M%p")
+
+
+def print_date(date):
+    return date.strftime('%A, %B %-d')
 
 
 class Department(models.Model):
@@ -81,6 +93,33 @@ class WorkDay(models.Model):
 
     def __str__(self):
         return "{}".format(self.day_date)
+
+
+class ShiftTemplate(models.Model):
+    """
+    A predefined template for users to quickly make standard shifts.
+    """
+    starting_time = models.TimeField()
+    length = models.IntegerField(default=8)
+
+    area = models.ForeignKey(Area, null=True, blank=True)
+    station = models.ForeignKey(Station, null=True, blank=True)
+
+    shift_category = models.ForeignKey(Available, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def string_rep(self):
+        start = self.starting_time
+        dt = datetime.datetime.combine(
+            datetime.datetime.now(), self.starting_time
+        ) + datetime.timedelta(hours=self.length
+                               )
+        end = dt.time()
+        return "{} to {}".format(print_time(start),
+                                 print_time(end))
 
 
 class Shift(models.Model):

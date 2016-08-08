@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from profiles.serializers import EmployeeProfileSerializer
 from schedules.models import WorkDay, Shift, EOList, EOEntry, CallOut, \
-    TimeOffRequest, Area, Station
+    TimeOffRequest, Area, Station, ShiftTemplate
 
 
 class WorkDaySerializer(serializers.ModelSerializer):
@@ -108,4 +108,11 @@ class TimeOffRequestDisplaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimeOffRequest
+        fields = '__all__'
+
+
+class ShiftTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ShiftTemplate
         fields = '__all__'

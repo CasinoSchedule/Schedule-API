@@ -9,13 +9,15 @@ from rest_framework.views import APIView
 
 from profiles.models import EmployeeProfile
 from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry,\
-    CallOut, TimeOffRequest, Area, Station
+    CallOut, TimeOffRequest, Area, Station, print_date, print_time, \
+    ShiftTemplate
 from schedules.permissions import IsManager, IsEmployee
 from schedules.sendgrid_functions import email_shift
 from schedules.serializers import WorkDaySerializer, EmployeeShiftSerializer,\
     ShiftCreateSerializer, EOListSerializer, EOEntrySerializer,\
     CallOutSerializer, TimeOffRequestCreateSerializer,\
-    TimeOffRequestDisplaySerializer, AreaSerializer, StationSerializer
+    TimeOffRequestDisplaySerializer, AreaSerializer, StationSerializer, \
+    ShiftTemplateSerializer
 
 from schedules.twilio_functions import twilio_shift
 
@@ -78,18 +80,6 @@ def get_or_create_schedule(date):
         current_schedule = create_schedule(monday)
 
     return current_schedule
-
-
-def print_time(time):
-    """
-    :param time: datetime.time object.
-    :return: Formatted time string.
-    """
-    return time.strftime("%-I:%M %p")
-
-
-def print_date(date):
-    return date.strftime('%A, %B %-d')
 
 
 def phone_notify_employees(data):
@@ -207,6 +197,40 @@ def update_shift_date(shift, days):
     new_workday = WorkDay.objects.get(day_date=new_date)
     shift.day = new_workday
     shift.save()
+
+
+def check_shift_overlap(shift, shifts):
+    """
+    :param shift: A shift object.
+    :param shifts: A querset of shift objects to be checked against.
+    :return: True if shift is valid, False if it starts within 12 hours of
+    a shift in shifts.
+    """
+    working_date = shift.datetime_obj
+    one_day = datetime.timedelta(days=1)
+    after = working_date + one_day
+    before = working_date - one_day
+
+    qs = shifts.objects.filter(day__day_date__gte=before,
+                              day__day_date__lte=after)
+    qs = qs.exclude(day__day_date=after,
+                    starting_time__lte=working_date.time())
+    qs = qs.exclude(day__day_date=before,
+                    starting_time__gte=working_date.time())
+    return qs.count() == 0
+
+
+def random_shift_monte_carlo(new_shifts, all_shifts, employee_ids):
+    """
+    Find a random valid new reshuffling of a shift week.
+    :param new_shifts: Shifts with id=None.
+    :param all_shifts: Shifts to be checked against for conflicts, typically
+    either all shifts or the bordering weeks.
+    :param employee_ids: A list of employee id numbers that must be randomly
+    reassigned.
+    :return:
+    """
+    pass
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
@@ -537,6 +561,8 @@ class AutoPopulateWeek(APIView):
                             status=status.HTTP_201_CREATED)
 
         elif self.request.data.get('method') == 'station':
+            # Call function that runs x number of random layouts, checking each
+            # against restrictions, returning the first valid layout.
             employee_id_list = previous_shifts.values_list('employee', flat=True)
             employee_id_list = list(employee_id_list)
             random.shuffle(employee_id_list)
@@ -548,3 +574,17 @@ class AutoPopulateWeek(APIView):
             return Response('New shifts created', status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class ShiftTemplateListCreate(generics.ListCreateAPIView):
+    """
+    For shift_category 1=Grave, 3=Swing.
+    """
+    queryset = ShiftTemplate.objects.all()
+    serializer_class = ShiftTemplateSerializer
+
+
+class ShiftTemplateDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = ShiftTemplate
+    serializer_class = ShiftTemplateSerializer
