@@ -112,7 +112,9 @@ class TimeOffRequestDisplaySerializer(serializers.ModelSerializer):
 
 
 class ShiftTemplateSerializer(serializers.ModelSerializer):
+    string_rep = serializers.ReadOnlyField()
 
     class Meta:
         model = ShiftTemplate
         fields = '__all__'
+        read_only_fields = ('string_rep',)
