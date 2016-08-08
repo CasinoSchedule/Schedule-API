@@ -203,7 +203,7 @@ def check_shift_overlap(shift, shifts):
     """
     :param shift: A shift object.
     :param shifts: A querset of shift objects to be checked against.
-    :return: True if shift is valid, False if it starts within 12 hours of
+    :return: True if shift is valid, False if it starts within 24 hours of
     a shift in shifts.
     """
     working_date = shift.datetime_obj
@@ -211,13 +211,14 @@ def check_shift_overlap(shift, shifts):
     after = working_date + one_day
     before = working_date - one_day
 
-    qs = shifts.objects.filter(day__day_date__gte=before,
-                              day__day_date__lte=after)
+    qs = shifts.filter(day__day_date__gte=before,
+                       day__day_date__lte=after,
+                       employee=shift.employee)
     qs = qs.exclude(day__day_date=after,
-                    starting_time__lte=working_date.time())
-    qs = qs.exclude(day__day_date=before,
                     starting_time__gte=working_date.time())
-    return qs.count() == 0
+    qs = qs.exclude(day__day_date=before,
+                    starting_time__lte=working_date.time())
+    return qs.count() == 1
 
 
 def random_shift_monte_carlo(new_shifts, all_shifts, employee_ids):
@@ -228,9 +229,23 @@ def random_shift_monte_carlo(new_shifts, all_shifts, employee_ids):
     either all shifts or the bordering weeks.
     :param employee_ids: A list of employee id numbers that must be randomly
     reassigned.
-    :return:
+    :return: A valid set of new shifts ready to be saved to the database.
     """
-    pass
+    # get a queryset of employees based on unique ids to save databse calls.
+    for i in range(1000):
+        print(i)
+        random.shuffle(employee_ids)
+        for i, shift in enumerate(new_shifts):
+            shift.employee = EmployeeProfile.objects.get(id=employee_ids[i])
+            shift.save()
+
+        all_shifts = Shift.objects.all()
+
+        validity_checks = [check_shift_overlap(shift, all_shifts) for shift in new_shifts]
+        if set(validity_checks) == {True}:
+            return new_shifts
+
+    return 'error'
 
 
 class EmployeeShiftsByMonth(generics.ListAPIView):
@@ -561,17 +576,21 @@ class AutoPopulateWeek(APIView):
                             status=status.HTTP_201_CREATED)
 
         elif self.request.data.get('method') == 'station':
-            # Call function that runs x number of random layouts, checking each
-            # against restrictions, returning the first valid layout.
             employee_id_list = previous_shifts.values_list('employee', flat=True)
             employee_id_list = list(employee_id_list)
-            random.shuffle(employee_id_list)
-            for i, shift in enumerate(previous_shifts):
+            all_shifts = Shift.objects.all()
+
+            # change shift date, visible here. before monto carlo
+            for shift in previous_shifts:
                 shift.id = None
                 shift.visible = False
-                shift.employee = EmployeeProfile.objects.get(id=employee_id_list[i])
                 update_shift_date(shift, day_change)
-            return Response('New shifts created', status=status.HTTP_201_CREATED)
+            rotated_shifts = random_shift_monte_carlo(previous_shifts,
+                                                      Shift.objects.all(),
+                                                      employee_id_list)
+
+            return Response('New shifts created',
+                            status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
