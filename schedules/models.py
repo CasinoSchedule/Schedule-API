@@ -154,6 +154,11 @@ class Shift(models.Model):
         return dt.time()
 
     @property
+    def string_rep(self):
+        return '{} to {}'.format(print_time(self.starting_time),
+                                 print_time(self.end_time))
+
+    @property
     def called_out(self):
         # Should return [False, 'Pending', 'Approved', 'Rejected']
         callout = CallOut.objects.filter(shift=self).first()

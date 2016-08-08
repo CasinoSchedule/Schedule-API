@@ -40,12 +40,14 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
 
     employee = EmployeeProfileSerializer(read_only=True)
     station = StationSerializer(read_only=True)
+    # string_rep = serializers.ReadOnlyField()
 
     class Meta:
         model = Shift
+        read_only_fields = ('string_rep',)
         fields = ("id", "starting_time", "area", "station", "length",
                   "visible", "called_out", "employee", "calendar_date",
-                  "end_time", "day", 'epoch_milliseconds')
+                  "end_time", "day", 'epoch_milliseconds', 'string_rep')
 
 
 class ShiftCreateSerializer(serializers.ModelSerializer):
