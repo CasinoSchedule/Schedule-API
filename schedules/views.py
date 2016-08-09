@@ -241,7 +241,9 @@ def random_shift_monte_carlo(new_shifts, all_shifts, employee_ids):
 
         all_shifts = Shift.objects.all()
 
-        validity_checks = [check_shift_overlap(shift, all_shifts) for shift in new_shifts]
+        validity_checks = [
+            check_shift_overlap(shift, all_shifts) for shift in new_shifts
+            ]
         if set(validity_checks) == {True}:
             return new_shifts
 

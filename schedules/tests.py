@@ -13,8 +13,6 @@ from schedules.models import WorkDay, Shift, Department
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule
 
-# test is_past
-
 
 class TestSetup(APITestCase):
 
@@ -67,9 +65,9 @@ class HelperFunctionTests(TestCase):
 
     def test_print_time(self):
         self.assertEqual(print_time(datetime.time(11, 0)),
-                         '11:00 AM')
+                         '11:00AM')
         self.assertEqual(print_time(datetime.time(17, 15)),
-                         '5:15 PM')
+                         '5:15PM')
 
     def test_print_date(self):
         self.assertEqual(print_date(datetime.date(2016, 7, 28)),
