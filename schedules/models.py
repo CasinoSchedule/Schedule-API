@@ -258,9 +258,6 @@ class TimeOffRequest(models.Model):
     status = models.ForeignKey(Status)
 
 
-
-#['Baccarat', 'High-Limit Slots', 'Poker', 'Chip Bank', 'Marker Bank', 'Main Bank', 'Front Line', 'Credit', 'Float']
-
 # class ShiftTrade(models.Model):
 #     initiating_employee = models.ForeignKey(EmployeeProfile, related_name="initiator")
 #     responding_employee = models.ForeignKey(EmployeeProfile, related_name="responder")
