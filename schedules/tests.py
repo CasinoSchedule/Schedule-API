@@ -230,6 +230,7 @@ class AreaTest(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[1]['title'], 'test_area')
 
     def test_station_list_create(self):
 
@@ -239,7 +240,7 @@ class AreaTest(APITestCase):
         token = Token.objects.get(user_id=self.user.id)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
-        data = {'title': 'test_station', 'area':Area.objects.first().id}
+        data = {'title': 'test_station', 'area': Area.objects.first().id}
         post_response = self.client.post(self.station_url, data, format='json')
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
 

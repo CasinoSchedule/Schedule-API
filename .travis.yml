@@ -17,8 +17,7 @@ before_script:
 - psql -c "CREATE DATABASE casino_schedules;" -U postgres
 - python manage.py migrate
 script:
-- coverage run --source='.' manage.py test schedules
-- coverage run --source='.' manage.py test profiles
+- coverage run --source='.' manage.py test schedules profiles
 after_success:
 - coveralls
 deploy:

@@ -73,7 +73,7 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
             station = validated_data.get('station')
             if station:
                 setattr(shift, 'station', station)
-            
+
             shift.save()
         else:
             shift = Shift.objects.create(**validated_data)

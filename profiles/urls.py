@@ -5,13 +5,14 @@ from profiles.views import EmployeeProfileListCreateView, ProfileCheck, \
     UserList, NotifyNewEmployee, MessageEmployees, MessageAvailableEmployees
 
 urlpatterns = [
-    url(r'^employee/$', EmployeeProfileListCreateView.as_view(),
-        name="employee_list_create"),
+
     url(r'^employee/update/(?P<pk>\d+)/$', EmployeeProfileUpdate.as_view(),
         name="employee_update"),
     url(r'^employee/(?P<pk>\d+)/$',
         EmployeeProfileGetDelete.as_view(),
-        name="employee_update_delete"),
+        name="employee_detail_delete"),
+    url(r'^employee/$', EmployeeProfileListCreateView.as_view(),
+        name="employee_list_create"),
 
     url(r'^check/$', ProfileCheck.as_view(),
         name="profile_check"),
