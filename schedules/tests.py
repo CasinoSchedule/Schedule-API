@@ -9,7 +9,7 @@ import datetime
 
 
 from profiles.models import EmployeeProfile, ManagerProfile
-from schedules.models import WorkDay, Shift, Department
+from schedules.models import WorkDay, Shift, Department, Area
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule
 
@@ -209,6 +209,7 @@ class AreaTest(TestSetup):
                                              password='blahblah')
         self.manager = self.new_manager(self.user)
         self.list_url = reverse('area_list_create')
+        self.station_url = reverse('station_list_create')
         self.department = Department.objects.create(title='test')
 
     def test_area_list_create(self):
@@ -226,3 +227,23 @@ class AreaTest(TestSetup):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+
+    def test_station_list_create(self):
+
+        not_allowed = self.client.get(self.station_url)
+        self.assertEqual(not_allowed.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        token = Token.objects.get(user_id=self.user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        print('area count', Area.objects.count())
+
+        data = {'title': 'test_station', 'area':1}
+        post_response = self.client.post(self.station_url, data, format='json')
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+
+
