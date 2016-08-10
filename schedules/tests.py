@@ -202,12 +202,13 @@ class ShiftWeekTest(TestSetup):
         self.assertEqual(len(response.data), 6)
 
 
-class AreaTest(TestSetup):
+class AreaTest(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username='test user',
                                              password='blahblah')
-        self.manager = self.new_manager(self.user)
+        self.manager = ManagerProfile.objects.create(user=self.user,
+                                                     position_title='test')
         self.list_url = reverse('area_list_create')
         self.station_url = reverse('station_list_create')
         self.department = Department.objects.create(title='test')
