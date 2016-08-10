@@ -211,6 +211,8 @@ class AreaTest(TestSetup):
         self.list_url = reverse('area_list_create')
         self.station_url = reverse('station_list_create')
         self.department = Department.objects.create(title='test')
+        self.area1 = Area.objects.create(title='test_area',
+                                         department=self.department)
 
     def test_area_list_create(self):
 
@@ -226,7 +228,7 @@ class AreaTest(TestSetup):
 
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 2)
 
     def test_station_list_create(self):
 
@@ -235,9 +237,8 @@ class AreaTest(TestSetup):
 
         token = Token.objects.get(user_id=self.user.id)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
-        print('area count', Area.objects.count())
 
-        data = {'title': 'test_station', 'area':1}
+        data = {'title': 'test_station', 'area':Area.objects.first().id}
         post_response = self.client.post(self.station_url, data, format='json')
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
 
