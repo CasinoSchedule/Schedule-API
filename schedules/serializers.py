@@ -65,6 +65,15 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
         if shift:
             setattr(shift, 'starting_time', validated_data['starting_time'])
             setattr(shift, 'visible', False)
+
+            area = validated_data.get('area')
+            if area:
+                setattr(shift, 'area', area)
+
+            station = validated_data.get('station')
+            if station:
+                setattr(shift, 'station', station)
+            
             shift.save()
         else:
             shift = Shift.objects.create(**validated_data)
