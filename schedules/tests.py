@@ -11,7 +11,8 @@ import datetime
 from profiles.models import EmployeeProfile, ManagerProfile
 from schedules.models import WorkDay, Shift, Department, Area
 from schedules.views import most_recent_monday, next_monday, print_time, \
-    print_date, date_string_to_datetime, is_past, get_or_create_schedule
+    print_date, date_string_to_datetime, is_past, get_or_create_schedule, \
+    get_week_shifts, change_string_date, update_shift_date, check_shift_overlap
 
 
 class TestSetup(APITestCase):
@@ -87,8 +88,49 @@ class HelperFunctionTests(TestCase):
         self.assertTrue(is_past(old_date, time))
         self.assertFalse(is_past(future_date, time))
 
+
+class ShiftFunctionTests(TestCase):
+    def setUp(self):
+        self.employee1 = EmployeeProfile.objects.create(first_name='a',
+                                                        last_name='b')
+        self.week1 = get_or_create_schedule('2016-7-4')
+        self.week2 = get_or_create_schedule('2016-7-11')
+        self.shift1 = Shift.objects.create(employee=self.employee1,
+                                           day=WorkDay.objects.get(day_date='2016-7-4'),
+                                           starting_time=datetime.time(11, 0))
+        self.shift2 = Shift.objects.create(employee=self.employee1,
+                                           day=WorkDay.objects.get(
+                                               day_date='2016-7-5'),
+                                           starting_time=datetime.time(11, 0))
+        self.shift3 = Shift.objects.create(employee=self.employee1,
+                                           day=WorkDay.objects.get(
+                                               day_date='2016-7-12'),
+                                           starting_time=datetime.time(11, 0))
+
     def test_get_week_shifts(self):
-        pass
+        first_results = get_week_shifts('2016-7-4')
+        self.assertEqual(first_results.count(), 2)
+
+        second_results = get_week_shifts('2016-7-11')
+        self.assertEqual(second_results.count(), 1)
+
+        third_results = get_week_shifts('2016-8-1')
+        self.assertEqual(third_results.count(), 0)
+
+    def test_change_string_date(self):
+        date_string = '2016-1-20'
+        self.assertEqual(change_string_date(date_string, 20), '2016-2-9')
+        self.assertEqual(change_string_date(date_string, -40), '2015-12-11')
+
+    def test_update_shift_date(self):
+        self.assertEqual(self.shift1.day.day_date, datetime.date(2016, 7, 4))
+        update_shift_date(self.shift1, 8)
+        self.assertEqual(self.shift1.day.day_date, datetime.date(2016, 7, 12))
+
+    def test_check_shift_overlap(self):
+        self.assertTrue(check_shift_overlap(self.shift2, Shift.objects.all()))
+        update_shift_date(self.shift2, 7)
+        self.assertFalse(check_shift_overlap(self.shift2, Shift.objects.all()))
 
 
 class EmployeeMonthTest(TestSetup):
@@ -167,6 +209,8 @@ class ShiftWeekTest(TestSetup):
     Tests for the ShiftWeekList view to check for WorkDay creation and
     shift filtering.
     """
+
+    # add another test of the queryset
 
     def setUp(self):
         self.url = reverse('schedule_shifts')

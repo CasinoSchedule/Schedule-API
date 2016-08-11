@@ -202,7 +202,7 @@ def update_shift_date(shift, days):
 def check_shift_overlap(shift, shifts):
     """
     :param shift: A shift object.
-    :param shifts: A querset of shift objects to be checked against.
+    :param shifts: A quersyet of shift objects to be checked against.
     :return: True if shift is valid, False if it starts within 24 hours of
     a shift in shifts.
     """
