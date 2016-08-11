@@ -38,7 +38,6 @@ class HelperFunctionTests(TestCase):
         self.assertEqual(days.first().day_date, datetime.date(2016, 6, 27))
         self.assertEqual(days.last().day_date, datetime.date(2016, 7, 3))
 
-
     def test_most_recent_monday(self):
         thursday = datetime.date(2016, 7, 28)
         monday = datetime.date(2016, 7, 25)
@@ -75,9 +74,6 @@ class HelperFunctionTests(TestCase):
         self.assertEqual(print_date(datetime.date(2016, 8, 1)),
                          'Monday, August 1')
 
-    # test phone notify
-    # test email notify
-
     def test_date_string_to_datetime(self):
         self.assertEqual(date_string_to_datetime('2011-7-3'),
                          datetime.datetime(2011, 7, 3))
@@ -90,6 +86,9 @@ class HelperFunctionTests(TestCase):
         time = '11:00'
         self.assertTrue(is_past(old_date, time))
         self.assertFalse(is_past(future_date, time))
+
+    def test_get_week_shifts(self):
+        pass
 
 
 class EmployeeMonthTest(TestSetup):

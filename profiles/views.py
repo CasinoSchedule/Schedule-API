@@ -76,7 +76,6 @@ class EmployeeProfileGetDelete(generics.RetrieveDestroyAPIView):
     serializer_class = EmployeeProfileSerializer
 
 
-
 class EmployeeProfileUpdate(APIView):
     """
     Update employee profile.
