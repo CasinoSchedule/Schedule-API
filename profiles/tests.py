@@ -102,9 +102,38 @@ class EmployeeTests(APITestCase):
                          Available.objects.first().title)
 
     def test_user_create_with_profile(self):
-        pass
+        new_employee = EmployeeProfile.objects.create(first_name='a',
+                                                      last_name='b')
+        url = reverse('user_with_profile')
+        data = {'username': 'new_employee_profile', 'password': 'pass_word',
+                'profile_id': new_employee.id}
+        response = self.client.post(url, data, format='json')
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-def test_profile_check(self):
-    # create users with employee, manager, no profile, no token.
-    pass
+        new_user = User.objects.get(username='new_employee_profile')
+        self.assertEqual(new_user.employeeprofile, new_employee)
+
+    def test_profile_check(self):
+        users = [User.objects.create_user(username=str(x), password='pass_word') for x in range(1,4)]
+        EmployeeProfile.objects.create(user=users[0], first_name='a', last_name='b')
+        ManagerProfile.objects.create(user=users[1], first_name='c', last_name='d', position_title='e')
+
+        url = reverse('profile_check')
+        response = self.client.get(url)
+        self.assertEqual(response.data['type'], 'no token')
+
+        token = Token.objects.get(user_id=users[2].id)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        response = self.client.get(url)
+        self.assertEqual(response.data['type'], 'no profile')
+
+        token = Token.objects.get(user_id=users[1].id)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        response = self.client.get(url)
+        self.assertEqual(response.data['type'], 'manager')
+
+        token = Token.objects.get(user_id=users[0].id)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        response = self.client.get(url)
+        self.assertEqual(response.data['type'], 'employee')
