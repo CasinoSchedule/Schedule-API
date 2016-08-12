@@ -202,47 +202,60 @@ class EmployeeMonthTest(TestSetup):
         self.assertEqual(response.data, [])
         # self.assertEqual(Shift.objects.count(), 2)
 
-
-
-class ShiftWeekTest(TestSetup):
-    """
-    Tests for the ShiftWeekList view to check for WorkDay creation and
-    shift filtering.
-    """
-
-    # add another test of the queryset
-
-    def setUp(self):
-        self.url = reverse('schedule_shifts')
-        self.user = User.objects.create_user(username='test user',
-                                             password='blahblah')
-        self.employee = self.new_employee(self.user)
-
-    def initial_query_test(self):
-        response = self.client.get(self.url + '?date=2016-6-20')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
-
-        response = self.client.get(self.url + '?date=2016-6-27')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
-
-        self.assertEqual(WorkDay.objects.all(), 14)
-
-    def shift_filter_test(self):
-        shifts = [Shift.objects.create(employee=self.employee,
-                                 day=w,
-                                 starting_time='11:00'
-                                 ) for w in WorkDay.objects.all()]
-
-        response = self.client.get(self.url + '?date=2016-6-20')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 7)
-
-        Shift.objects.last().delete()
-        response = self.client.get(self.url + '?date=2016-6-27')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 6)
+#
+# class ShiftWeekTest(APITestCase):
+#     """
+#     Tests for the ShiftWeekList view to check for WorkDay creation and
+#     shift filtering.
+#     """
+#
+#     def setUp(self):
+#         self.url = reverse('schedule_shifts')
+#         self.user = User.objects.create_user(username='test user',
+#                                              password='blahblah')
+#         self.employee = EmployeeProfile.objects.create(user=self.user,
+#                                                        first_name='a',
+#                                                        last_name='b',
+#                                                        position_title='c')
+#
+#         # self.manager_user = User.objects.create_user(username='manager',
+#         #                                              password='blahblah')
+#
+#     # def test_initial_query(self):
+#     #     response = self.client.get(self.url + '?date=2016-6-20')
+#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+#     #     self.assertEqual(response.data, [])
+#     #
+#     #     response = self.client.get(self.url + '?date=2016-6-27')
+#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+#     #     self.assertEqual(response.data, [])
+#     #
+#     #     self.assertEqual(WorkDay.objects.all(), 14)
+#
+#     def test_shift_filter(self):
+#         response = self.client.get(self.url + '?date=2016-6-20')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(response.data, [])
+#
+#         response = self.client.get(self.url + '?date=2016-6-27')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(response.data, [])
+#
+#         self.assertEqual(WorkDay.objects.all(), 14)
+#
+#         shifts = [Shift.objects.create(employee=self.employee,
+#                                  day=w,
+#                                  starting_time='11:00'
+#                                  ) for w in WorkDay.objects.all()]
+#
+#         response = self.client.get(self.url + '?date=2016-6-20')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(len(response.data), 7)
+#
+#         Shift.objects.last().delete()
+#         response = self.client.get(self.url + '?date=2016-6-27')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(len(response.data), 6)
 
 
 class AreaTest(APITestCase):

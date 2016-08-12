@@ -38,7 +38,7 @@ class ManagerProfile(models.Model):
 
     user = models.OneToOneField(User, null=True)
 
-    position_title = models.CharField(max_length=255)
+    position_title = models.CharField(max_length=255, null=True, blank=True)
     department = models.ForeignKey('schedules.Department', null=True, blank=True)
 
     first_name = models.CharField(max_length=255)
