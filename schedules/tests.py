@@ -7,7 +7,6 @@ from rest_framework.authtoken.models import Token
 
 import datetime
 
-
 from profiles.models import EmployeeProfile, ManagerProfile
 from schedules.models import WorkDay, Shift, Department, Area
 from schedules.views import most_recent_monday, next_monday, print_time, \
@@ -146,6 +145,13 @@ class EmployeeMonthTest(TestSetup):
         self.employee_url = reverse('days_by_month')
         self.scheduler_url = reverse('multiple_shift_by_date')
 
+        self.manager_user = User.objects.create_user(username='manager',
+                                                     password='blahblah')
+
+        self.manager_profile = ManagerProfile.objects.create(first_name='a',
+                                                         last_name='b',
+                                                         user=self.manager_user)
+
     def test_initial_shift(self):
 
         response = self.client.get(self.employee_url + '?month=6&year=2016',
@@ -155,7 +161,9 @@ class EmployeeMonthTest(TestSetup):
         self.assertEqual(response.data, [])
         self.assertEqual(Shift.objects.count(), 0)
 
-    def create_delete_shifts(self):
+    def test_create_delete_shifts(self):
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
         data = [
             {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
@@ -164,7 +172,7 @@ class EmployeeMonthTest(TestSetup):
 
         response = self.client.post(self.scheduler_url, data, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Shift.objects.count(), 2)
 
         data = [
@@ -174,7 +182,7 @@ class EmployeeMonthTest(TestSetup):
 
         response = self.client.post(self.scheduler_url, data, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Shift.objects.count(), 0)
 
     def test_visible(self):
@@ -202,60 +210,55 @@ class EmployeeMonthTest(TestSetup):
         self.assertEqual(response.data, [])
         # self.assertEqual(Shift.objects.count(), 2)
 
-#
-# class ShiftWeekTest(APITestCase):
-#     """
-#     Tests for the ShiftWeekList view to check for WorkDay creation and
-#     shift filtering.
-#     """
-#
-#     def setUp(self):
-#         self.url = reverse('schedule_shifts')
-#         self.user = User.objects.create_user(username='test user',
-#                                              password='blahblah')
-#         self.employee = EmployeeProfile.objects.create(user=self.user,
-#                                                        first_name='a',
-#                                                        last_name='b',
-#                                                        position_title='c')
-#
-#         # self.manager_user = User.objects.create_user(username='manager',
-#         #                                              password='blahblah')
-#
-#     # def test_initial_query(self):
-#     #     response = self.client.get(self.url + '?date=2016-6-20')
-#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-#     #     self.assertEqual(response.data, [])
-#     #
-#     #     response = self.client.get(self.url + '?date=2016-6-27')
-#     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-#     #     self.assertEqual(response.data, [])
-#     #
-#     #     self.assertEqual(WorkDay.objects.all(), 14)
-#
-#     def test_shift_filter(self):
-#         response = self.client.get(self.url + '?date=2016-6-20')
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data, [])
-#
-#         response = self.client.get(self.url + '?date=2016-6-27')
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data, [])
-#
-#         self.assertEqual(WorkDay.objects.all(), 14)
-#
-#         shifts = [Shift.objects.create(employee=self.employee,
-#                                  day=w,
-#                                  starting_time='11:00'
-#                                  ) for w in WorkDay.objects.all()]
-#
-#         response = self.client.get(self.url + '?date=2016-6-20')
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(len(response.data), 7)
-#
-#         Shift.objects.last().delete()
-#         response = self.client.get(self.url + '?date=2016-6-27')
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(len(response.data), 6)
+
+class ShiftWeekTest(APITestCase):
+    """
+    Tests for the ShiftWeekList view to check for WorkDay creation and
+    shift filtering.
+    """
+
+    def setUp(self):
+        self.url = reverse('schedule_shifts')
+        self.user = User.objects.create_user(username='test user',
+                                             password='blahblah')
+        self.employee = EmployeeProfile.objects.create(user=self.user,
+                                                       first_name='a',
+                                                       last_name='b',
+                                                       position_title='c')
+
+        self.manager_user = User.objects.create_user(username='manager',
+                                                     password='blahblah')
+        self.manager_profile = ManagerProfile.objects.create(first_name='a',
+                                                             last_name='b',
+                                                             user=self.manager_user)
+
+    def test_shift_filter(self):
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        response = self.client.get(self.url + '?date=2016-6-20')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+        response = self.client.get(self.url + '?date=2016-6-27')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+        self.assertEqual(WorkDay.objects.count(), 14)
+
+        shifts = [Shift.objects.create(employee=self.employee,
+                                 day=w,
+                                 starting_time='11:00'
+                                 ) for w in WorkDay.objects.all()]
+
+        response = self.client.get(self.url + '?date=2016-6-20')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 7)
+
+        Shift.objects.last().delete()
+        response = self.client.get(self.url + '?date=2016-6-27')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 6)
 
 
 class AreaTest(APITestCase):

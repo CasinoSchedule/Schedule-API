@@ -26,7 +26,7 @@ class Department(models.Model):
 class Area(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    
+
     color_description = models.CharField(max_length=60, null=True, blank=True)
 
     department = models.ForeignKey(Department)
