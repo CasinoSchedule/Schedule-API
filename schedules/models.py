@@ -26,6 +26,8 @@ class Department(models.Model):
 class Area(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    
+    color_description = models.CharField(max_length=60, null=True, blank=True)
 
     department = models.ForeignKey(Department)
 
@@ -106,6 +108,8 @@ class ShiftTemplate(models.Model):
     station = models.ForeignKey(Station, null=True, blank=True)
 
     shift_category = models.ForeignKey(Available, null=True, blank=True)
+
+    color_description = models.CharField(max_length=60, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
