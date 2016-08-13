@@ -416,7 +416,7 @@ class ActivateShiftWeek(APIView):
         )
 
 
-class RetrieveEOList(APIView):
+class RetrieveCreateEOList(APIView):
     """
     Post a date to get the EO list for that day. Will add more parameters
     later for department and shift.
@@ -441,7 +441,7 @@ class CreateEOEntry(generics.CreateAPIView):
     """
     Create a new entry on an EO list. POST the shift and EO list ids.
 
-    Note: I need to add a check requiring the dates to match.
+    Note: I need to correct the response if dates do not match.
     """
     queryset = EOEntry.objects.all()
     serializer_class = EOEntrySerializer
@@ -451,8 +451,13 @@ class CreateEOEntry(generics.CreateAPIView):
         shift_id = self.request.data['shift']
         eo_list_id = self.request.data['eo_list']
 
-        serializer.save(shift=Shift.objects.get(pk=shift_id),
-                        eo_list=EOList.objects.get(pk=eo_list_id))
+        shift = Shift.objects.get(pk=shift_id)
+        eo_list = EOList.objects.get(pk=eo_list_id)
+
+        if shift.day == eo_list.day:
+            serializer.save(shift=shift, eo_list=eo_list)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class EOListList(generics.ListAPIView):

@@ -186,9 +186,6 @@ class Shift(models.Model):
 class EOList(models.Model):
     day = models.ForeignKey(WorkDay)
 
-    # Add later for day, swing, grave
-    # work_period = models.CharField(max_length=50, null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 

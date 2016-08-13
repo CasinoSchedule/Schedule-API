@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 import datetime
 
 from profiles.models import EmployeeProfile, ManagerProfile
-from schedules.models import WorkDay, Shift, Department, Area
+from schedules.models import WorkDay, Shift, Department, Area, EOList, EOEntry
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule, \
     get_week_shifts, change_string_date, update_shift_date, check_shift_overlap
@@ -166,8 +166,8 @@ class EmployeeMonthTest(TestSetup):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
 
         data = [
-            {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
-            {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
+            {"starting_time": "11:00:00", "day": "2016-6-20", "employee": self.employee.id},
+            {"starting_time": "11:00:00", "day": "2016-6-21", "employee": self.employee.id}
         ]
 
         response = self.client.post(self.scheduler_url, data, format='json')
@@ -323,13 +323,45 @@ class AreaTest(APITestCase):
 
 class EOListTests(APITestCase):
     def setUp(self):
-        pass
+        get_or_create_schedule('2016-7-4')
+        self.employee = EmployeeProfile.objects.create(first_name='a',
+                                                       last_name='b')
+        self.eo_list1 = EOList.objects.create(day=WorkDay.objects.get(day_date=datetime.date(2016, 7, 4)))
+
+        self.shift1 = Shift.objects.create(starting_time=datetime.time(11, 0),
+                                           employee=self.employee,
+                                           day=WorkDay.objects.get(day_date=datetime.date(2016, 7, 4)))
+
+        self.shift2 = Shift.objects.create(starting_time=datetime.time(11, 0),
+                                           employee=self.employee,
+                                           day=WorkDay.objects.get(
+                                               day_date=datetime.date(2016, 7,
+                                                                      5)))
 
     def test_eolist_detail(self):
-        pass
+        url = reverse('retrieve_eo_list')
+
+        data = {'date': '2016-7-4'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = {'date': '2016-7-5'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(EOList.objects.count(), 2)
 
     def test_entry_create(self):
-        pass
+        url = reverse('create_eo_entry')
+
+        data = {'shift': self.shift1.id, 'eo_list': self.eo_list1.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        data = {'shift': self.shift2.id, 'eo_list': self.eo_list1.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(EOEntry.objects.count(), 1)
+
+        # Need to correct the response if object not created.
 
 
 class TimeOffRequestTests(APITestCase):
