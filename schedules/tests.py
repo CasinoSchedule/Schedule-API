@@ -8,7 +8,8 @@ from rest_framework.authtoken.models import Token
 import datetime
 
 from profiles.models import EmployeeProfile, ManagerProfile
-from schedules.models import WorkDay, Shift, Department, Area, EOList, EOEntry
+from schedules.models import WorkDay, Shift, Department, Area, EOList, EOEntry, \
+    TimeOffRequest, Status
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule, \
     get_week_shifts, change_string_date, update_shift_date, check_shift_overlap
@@ -367,7 +368,28 @@ class EOListTests(APITestCase):
 class TimeOffRequestTests(APITestCase):
 
     def setUp(self):
-        pass
+        self.user = User.objects.create_user(username='test user',
+                                             password='blahblah')
+        self.employee = EmployeeProfile.objects.create(first_name='a',
+                                                       last_name='b',
+                                                       user=self.user)
+        get_or_create_schedule('2016-7-4')
+        self.pending = Status.objects.create(title='pending')
 
     def test_timeoff_create(self):
-        pass
+        url = reverse('time_off_request_create')
+        token = Token.objects.get(user_id=self.user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        data = {'status': self.pending.id, 'days': ['2016-7-4', '2016-7-5']}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(TimeOffRequest.objects.count(), 1)
+
+
+
+
+
+class AutoPopulateTests(APITestCase):
+    pass
