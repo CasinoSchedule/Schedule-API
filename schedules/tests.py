@@ -176,8 +176,8 @@ class EmployeeMonthTest(TestSetup):
         self.assertEqual(Shift.objects.count(), 2)
 
         data = [
-            {"starting_time": "", "day": "2016-6-20", "employee": 1},
-            {"starting_time": "", "day": "2016-6-21", "employee": 1}
+            {"starting_time": "", "day": "2016-6-20", "employee": self.employee.id},
+            {"starting_time": "", "day": "2016-6-21", "employee": self.employee.id}
         ]
 
         response = self.client.post(self.scheduler_url, data, format='json')
@@ -185,7 +185,7 @@ class EmployeeMonthTest(TestSetup):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Shift.objects.count(), 0)
 
-    def test_visible(self):
+    def test_visible_activate(self):
         """
         Test that shifts are not visible to employee by default and that
         they can be made so with ActivateShift Week.
@@ -195,11 +195,9 @@ class EmployeeMonthTest(TestSetup):
         # make visible, checking response amount
         # check that shifts are returned
         data = [
-            {"starting_time": "11:00:00", "day": "2016-6-20", "employee": 1},
-            {"starting_time": "11:00:00", "day": "2016-6-21", "employee": 1}
+            {"starting_time": "11:00:00", "day": "2016-6-20", "employee": self.employee.id},
+            {"starting_time": "11:00:00", "day": "2016-6-21", "employee": self.employee.id}
         ]
-
-        # Need to add token
 
         unauth_response = self.client.post(self.scheduler_url, data, format='json')
         self.assertEqual(unauth_response.status_code, status.HTTP_403_FORBIDDEN)
@@ -208,7 +206,22 @@ class EmployeeMonthTest(TestSetup):
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
-        # self.assertEqual(Shift.objects.count(), 2)
+
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+        response = self.client.post(self.scheduler_url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Shift.objects.count(), 2)
+        self.assertFalse(Shift.objects.first().visible)
+
+        activate_url = reverse('publish_shift_week')
+        data = {'date': '2016-6-20'}
+        response = self.client.post(activate_url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['amount updated'], 2)
+        self.assertTrue(Shift.objects.first().visible)
 
 
 class ShiftWeekTest(APITestCase):
@@ -308,4 +321,21 @@ class AreaTest(APITestCase):
         self.assertEqual(len(response.data), 1)
 
 
+class EOListTests(APITestCase):
+    def setUp(self):
+        pass
 
+    def test_eolist_detail(self):
+        pass
+
+    def test_entry_create(self):
+        pass
+
+
+class TimeOffRequestTests(APITestCase):
+
+    def setUp(self):
+        pass
+
+    def test_timeoff_create(self):
+        pass
