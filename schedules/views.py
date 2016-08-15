@@ -223,7 +223,9 @@ def check_shift_overlap(shift, shifts):
 
 def random_shift_monte_carlo(new_shifts, all_shifts, employee_ids):
     """
-    Find a random valid new reshuffling of a shift week.
+    Find a random valid new reshuffling of a shift week. Times out and returns
+    an error after 10,000 iterations. Employees can be reassigned to the same
+    shift/station combo for the following week.
     :param new_shifts: Shifts with id=None.
     :param all_shifts: Shifts to be checked against for conflicts, typically
     either all shifts or the bordering weeks.
@@ -232,10 +234,11 @@ def random_shift_monte_carlo(new_shifts, all_shifts, employee_ids):
     :return: A valid set of new shifts ready to be saved to the database.
     """
     # get a queryset of employees based on unique ids to save databse calls.
-    for i in range(1000):
-        print(i)
+    for sim_number in range(10000):
+        print(sim_number)
         random.shuffle(employee_ids)
         for i, shift in enumerate(new_shifts):
+
             shift.employee = EmployeeProfile.objects.get(id=employee_ids[i])
             shift.save()
 
@@ -549,7 +552,8 @@ class StationDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
 
 class AutoPopulateWeek(APIView):
     """
-    A simple auto-populate feature which copies the previous week.
+    An auto-populate feature which creates new a new weekly schedule using
+    several different methodologies.
     POST a department and a date from the week of the new shifts.
     methods: duplicate - repeat previous shift,
     station - randomly change employees, station and time pairs stay the same.
@@ -585,7 +589,7 @@ class AutoPopulateWeek(APIView):
         elif self.request.data.get('method') == 'station':
             employee_id_list = previous_shifts.values_list('employee', flat=True)
             employee_id_list = list(employee_id_list)
-            all_shifts = Shift.objects.all()
+            # all_shifts = Shift.objects.all()
 
             # change shift date, visible here. before monto carlo
             for shift in previous_shifts:
@@ -595,9 +599,12 @@ class AutoPopulateWeek(APIView):
             rotated_shifts = random_shift_monte_carlo(previous_shifts,
                                                       Shift.objects.all(),
                                                       employee_id_list)
-
-            return Response('New shifts created',
-                            status=status.HTTP_201_CREATED)
+            if rotated_shifts == 'error':
+                return Response('Error occured generating the shifts',
+                                status=status.HTTP_501_NOT_IMPLEMENTED)
+            else:
+                return Response('New shifts created',
+                                status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

@@ -388,8 +388,87 @@ class TimeOffRequestTests(APITestCase):
         self.assertEqual(TimeOffRequest.objects.count(), 1)
 
 
-
-
-
 class AutoPopulateTests(APITestCase):
-    pass
+
+    def setUp(self):
+        get_or_create_schedule('2016-7-4')
+
+        self.department = Department.objects.create(title='test department')
+
+        self.manager_user = User.objects.create_user(username='manager',
+                                                     password='blahblah')
+        self.manager_profile = ManagerProfile.objects.create(
+            first_name='a',
+            last_name='b',
+            user=self.manager_user
+        )
+
+        self.employee1 = EmployeeProfile.objects.create(first_name='a',
+                                                       last_name='b',
+                                                        department=self.department)
+
+        self.employee2 = EmployeeProfile.objects.create(first_name='c',
+                                                       last_name='d',
+                                                        department=self.department)
+
+        self.shift1 = Shift.objects.create(starting_time=datetime.time(14, 0),
+                                           employee=self.employee1,
+                                           day=WorkDay.objects.get(
+                                               day_date=datetime.date(2016, 7,
+                                                                      4)))
+
+        self.shift2 = Shift.objects.create(starting_time=datetime.time(11, 0),
+                                           employee=self.employee2,
+                                           day=WorkDay.objects.get(
+                                               day_date=datetime.date(2016, 7,
+                                                                      6)))
+        self.url = reverse('auto_populate')
+
+    def test_duplicate_method(self):
+
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        data = {'department': self.department.id, 'date': '2016-7-11',
+                'method': 'duplicate'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_shift1 = Shift.objects.filter(
+            employee=self.employee1,
+            day=WorkDay.objects.get(day_date=datetime.date(2016, 7, 11)),
+            starting_time=datetime.time(14, 0)).count()
+        new_shift2 = Shift.objects.filter(
+            employee=self.employee2,
+            day=WorkDay.objects.get(day_date=datetime.date(2016, 7,13)),
+            starting_time=datetime.time(11,0)).count()
+
+        self.assertEqual(new_shift1, 1)
+        self.assertEqual(new_shift2, 1)
+
+    def test_station_method(self):
+        # Test timeout error as well.
+
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        self.shift3 = Shift.objects.create(starting_time=datetime.time(14, 0),
+                                           employee=self.employee1,
+                                           day=WorkDay.objects.get(
+                                               day_date=datetime.date(2016, 7,
+                                                                      5)))
+        self.shift4 = Shift.objects.create(starting_time=datetime.time(14, 0),
+                                           employee=self.employee1,
+                                           day=WorkDay.objects.get(
+                                               day_date=datetime.date(2016, 7,
+                                                                      6)))
+        data = {'department': self.department.id, 'date': '2016-7-11',
+                'method': 'station'}
+        response = self.client.post(self.url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Shift.objects.count(), 8)
+
+        # Not sure how to test random rotation since employees can be
+        # reassigned to the same time/location. I will probably change the
+        # approach so I'm skipping this section for now.
