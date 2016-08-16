@@ -28,7 +28,6 @@ class StationSerializer(serializers.ModelSerializer):
 
 class AreaSerializer(serializers.ModelSerializer):
 
-    #station_set = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     station_set = StationSerializer(read_only=True, many=True)
 
     class Meta:
@@ -41,7 +40,6 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
     employee = EmployeeProfileSerializer(read_only=True)
     station = StationSerializer(read_only=True)
     area = AreaSerializer(read_only=True)
-    # string_rep = serializers.ReadOnlyField()
 
     class Meta:
         model = Shift
@@ -60,7 +58,7 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         shift = Shift.objects.filter(employee=validated_data['employee'],
-                                  day=validated_data['day']).first()
+                                     day=validated_data['day']).first()
 
         # Delete shift if starting time is "", otherwise update.
         if shift:

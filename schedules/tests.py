@@ -9,7 +9,7 @@ import datetime
 
 from profiles.models import EmployeeProfile, ManagerProfile
 from schedules.models import WorkDay, Shift, Department, Area, EOList, EOEntry, \
-    TimeOffRequest, Status
+    TimeOffRequest, Status, ShiftTemplate
 from schedules.views import most_recent_monday, next_monday, print_time, \
     print_date, date_string_to_datetime, is_past, get_or_create_schedule, \
     get_week_shifts, change_string_date, update_shift_date, check_shift_overlap
@@ -33,11 +33,13 @@ class TestSetup(APITestCase):
 class HelperFunctionTests(TestCase):
 
     def test_get_or_create_schedule(self):
-        get_or_create_schedule('2016-7-1')
+        schedule = get_or_create_schedule('2016-7-1')
         days = WorkDay.objects.all().order_by('day_date')
         self.assertEqual(days.count(), 7)
         self.assertEqual(days.first().day_date, datetime.date(2016, 6, 27))
         self.assertEqual(days.last().day_date, datetime.date(2016, 7, 3))
+        self.assertEqual(schedule.starting, datetime.date(2016, 6, 27))
+        self.assertEqual(days.first().__str__(), '2016-06-27')
 
     def test_most_recent_monday(self):
         thursday = datetime.date(2016, 7, 28)
@@ -284,7 +286,7 @@ class AreaTest(APITestCase):
                                                      position_title='test')
         self.list_url = reverse('area_list_create')
         self.station_url = reverse('station_list_create')
-        self.department = Department.objects.create(title='test')
+        self.department = Department.objects.create(title='test department')
         self.area1 = Area.objects.create(title='test_area',
                                          department=self.department)
 
@@ -305,6 +307,9 @@ class AreaTest(APITestCase):
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response.data[1]['title'], 'test_area')
 
+        self.assertEqual(self.department.__str__(), 'test department')
+        self.assertEqual(self.area1.__str__(), 'test_area')
+
     def test_station_list_create(self):
 
         not_allowed = self.client.get(self.station_url)
@@ -320,6 +325,7 @@ class AreaTest(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'test_area')
 
 
 class EOListTests(APITestCase):
@@ -350,6 +356,8 @@ class EOListTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(EOList.objects.count(), 2)
+
+
 
     def test_entry_create(self):
         url = reverse('create_eo_entry')
@@ -472,3 +480,16 @@ class AutoPopulateTests(APITestCase):
         # Not sure how to test random rotation since employees can be
         # reassigned to the same time/location. I will probably change the
         # approach so I'm skipping this section for now.
+
+
+class ShiftTemplateTests(APITestCase):
+
+    def test_list_create(self):
+        url = reverse('shift_template_list_create')
+        data = {'starting_time': '11:00'}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        template = ShiftTemplate.objects.first()
+        self.assertEqual(template.string_rep, '11:00AM to 7:00PM')
