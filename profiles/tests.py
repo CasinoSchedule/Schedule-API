@@ -8,7 +8,8 @@ from rest_framework.authtoken.models import Token
 import datetime
 
 from profiles.models import EmployeeProfile, ManagerProfile, Available
-from schedules.models import Department, DayOfWeek
+from schedules.models import Department, DayOfWeek, Shift, WorkDay
+from schedules.views import get_or_create_schedule
 
 
 class EmployeeTests(APITestCase):
@@ -137,3 +138,104 @@ class EmployeeTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         response = self.client.get(url)
         self.assertEqual(response.data['type'], 'employee')
+
+
+class EmailTests(APITestCase):
+    # Note: The try/except blocks are two broad for all of these views. If
+    # these features get implamented then I will sharpen them up.
+
+    def setUp(self):
+        get_or_create_schedule('2016-7-4')
+        self.department1 = Department.objects.create(title='d1')
+        self.department2 = Department.objects.create(title='d2')
+
+        self.employee1 = EmployeeProfile.objects.create(
+            first_name='a',
+            last_name='a',
+            email='a@sink.sendgrid.net',
+            email_notifications=True,
+            department=self.department1)
+        self.employee2 = EmployeeProfile.objects.create(
+            first_name='b',
+            last_name='b',
+            email='b@sink.sendgrid.net',
+            email_notifications=True,
+            department=self.department1)
+        self.employee3 = EmployeeProfile.objects.create(
+            first_name='c',
+            last_name='c',
+            email='not an email',
+            email_notifications=True,
+            department=self.department2)
+
+        self.manager_user = User.objects.create_user(username='manager',
+                                                     password='pass_word')
+
+        self.manager_profile = ManagerProfile.objects.create(
+            position_title='test',
+            first_name='m',
+            last_name='n',
+            user=self.manager_user)
+
+    def test_message_employees(self):
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        url = reverse('message_employees')
+        data = {"department": self.department1.id,
+                "subject": "test",
+                "body": "test"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, '2 emails sent')
+
+        data = {"department": self.department2.id,
+                "subject": "test",
+                "body": "test"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.data, 'email error')
+
+    def test_message_available_employees(self):
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        shift1 = Shift.objects.create(
+            employee=self.employee1,
+            starting_time=datetime.time(11, 0),
+            day=WorkDay.objects.get(day_date=datetime.date(2016, 7, 4)))
+
+        url = reverse('message_available_employees')
+        data = {"date": "2016-7-5",
+                "time": "10:00",
+                "department": self.department1.id}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['emails sent'], 1)
+        self.assertEqual(response.data['employees notified'], [('b', 'b')])
+
+    def test_notify_new_employee(self):
+        token = Token.objects.get(user_id=self.manager_user.id)
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + token.key)
+
+        url = reverse('notify_new_employee')
+        data = {'email': 'test@sink.sendgrid.net',
+                'profile_id': self.employee1.id,
+                'development': True}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, 'email sent successfully')
+
+        # Find an employee profile id that is not in use
+        ids = EmployeeProfile.objects.values_list('id', flat=True)
+        unused_id = max(ids) + 1
+
+        data = {'email': 'test@sink.sendgrid.net',
+                'profile_id': unused_id,
+                'development': True}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, 'email error')

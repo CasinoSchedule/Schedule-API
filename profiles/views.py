@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from schedules.models import Shift
 from schedules.permissions import IsManager
-from schedules.sendgrid_functions import signup_email, general_email
+from schedules.sendgrid_functions import send_text_email
 from schedules.views import date_string_to_datetime
 
 from profiles.models import EmployeeProfile, ManagerProfile
@@ -23,7 +23,8 @@ Views for updating and creating profiles
 class NotifyNewEmployee(APIView):
     """
     POST an email and employee profile id. They will be sent a link to register
-    as a new user, linked with that profile.
+    as a new user, linked with that profile. Can pass in development: True
+    to use the localhost link.
     example: {"email": "aaron@aol.com", "profile_id": 5}
     """
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -35,14 +36,28 @@ class NotifyNewEmployee(APIView):
         if not employee:
             return Response('No employee profile found',
                             status=status.HTTP_400_BAD_REQUEST)
-        # if employee.was_invited:
-        #     return Response('Employee already invited',
-        #                     status=status.HTTP_400_BAD_REQUEST)
 
-        signup_email(request.data['email'], request.data['profile_id'])
-        employee.was_invited = True
-        employee.save()
-        return Response('email sent successfully', status=status.HTTP_200_OK)
+        from_email = 'admin@rosterbarn.com'
+        subject = 'Welcome to Roster Barn. New account signup.'
+
+        if request.data.get('development'):
+            signup_link = 'http://0.0.0.0:5000/employee/{}'.format(employee.id)
+        else:
+            # Change this when front end is up.
+            signup_link = 'http://0.0.0.0:5000/employee/{}'.format(employee.id)
+
+        body = "A profile has been created for you, please use the" \
+               " following link to sign up. \n {}".format(signup_link)
+
+        try:
+            send_text_email(from_email, request.data['email'], subject, body)
+            employee.was_invited = True
+            employee.save()
+            return Response('email sent successfully',
+                            status=status.HTTP_200_OK)
+        except:
+            return Response('email error',
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 class EmployeeProfileListCreateView(generics.ListCreateAPIView):
@@ -171,17 +186,27 @@ class MessageEmployees(APIView):
     example: {"department": 1, "subject": "test", "body": "blah"}
     """
 
+    permission_classes = (IsManager,)
+
     def post(self, request, format=None):
         subject = request.data['subject']
         body = request.data['body']
+        from_email = 'messages@rosterbarn.com'
+
         employees = EmployeeProfile.objects.filter(
             department=request.data['department']
         )
         try:
+            counter = 0
             for employee in employees:
                 if employee.email:
-                    general_email(body=body,subject=subject,email=employee.email)
-            return Response('emails sent', status=status.HTTP_200_OK)
+                    counter += 1
+                    send_text_email(from_email,
+                                    employee.email,
+                                    subject,
+                                    body)
+            return Response('{} emails sent'.format(counter),
+                            status=status.HTTP_200_OK)
         except:
             return Response('email error',
                             status=status.HTTP_503_SERVICE_UNAVAILABLE)
@@ -191,11 +216,14 @@ class MessageAvailableEmployees(APIView):
     """
     Message all employees that are available to work a given time and date.
     For now an employee will be available if they do not have any other
-    start times within 24 hours. We will add department and shift filters
-    later.
+    start times within 24 hours.
+
+    Extra filters will be added later.
 
     example: {"date": "2016-6-20", "time": "11:00", "department": 1}
     """
+
+    permission_classes = (IsManager,)
 
     def post(self, request, format=None):
         working_date = date_string_to_datetime(request.data['date'],
@@ -207,23 +235,29 @@ class MessageAvailableEmployees(APIView):
         qs = Shift.objects.filter(day__day_date__gte=before,
                                   day__day_date__lte=after)
         qs = qs.exclude(day__day_date=after,
-                        starting_time__lte=working_date.time())
-        qs = qs.exclude(day__day_date=before,
                         starting_time__gte=working_date.time())
+        qs = qs.exclude(day__day_date=before,
+                        starting_time__lte=working_date.time())
         employees = qs.values('employee').distinct()
         employee_ids = [x['employee'] for x in employees]
         available_employees = EmployeeProfile.objects.filter(department=request.data['department'])
         available_employees = available_employees.exclude(id__in=employee_ids)
         try:
+            counter = 0
             subject = 'Shift available'
-            body = 'There is a new shift available on {} at {}. If you would ' \
-                   'like to work please contact your manager.'.format(
+            body = 'There is a new shift available on {} at {}. If you' \
+                   ' would like to work please contact your manager.'.format(
                 request.data['date'], request.data['time'])
+            from_email = 'messages@rosterbarn.com'
+
             for employee in available_employees:
                 if employee.email:
-                    general_email(body=body, subject=subject,
-                                  email=employee.email)
-            return Response('emails sent', status=status.HTTP_200_OK)
+                    counter += 1
+                    send_text_email(from_email, employee.email, subject, body)
+            recipient_names = [(x.first_name, x.last_name) for x in available_employees]
+            return Response({'emails sent': counter,
+                             'employees notified': recipient_names},
+                            status=status.HTTP_200_OK)
         except:
             return Response('email failed',
                             status=status.HTTP_503_SERVICE_UNAVAILABLE)
