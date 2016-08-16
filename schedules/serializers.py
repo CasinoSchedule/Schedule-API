@@ -40,6 +40,7 @@ class EmployeeShiftSerializer(serializers.ModelSerializer):
 
     employee = EmployeeProfileSerializer(read_only=True)
     station = StationSerializer(read_only=True)
+    area = AreaSerializer(read_only=True)
     # string_rep = serializers.ReadOnlyField()
 
     class Meta:
