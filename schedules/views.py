@@ -12,7 +12,7 @@ from schedules.models import Schedule, WorkDay, Shift, EOList, EOEntry,\
     CallOut, TimeOffRequest, Area, Station, print_date, print_time, \
     ShiftTemplate
 from schedules.permissions import IsManager, IsEmployee
-from schedules.sendgrid_functions import email_shift
+from schedules.sendgrid_functions import send_text_email
 from schedules.serializers import WorkDaySerializer, EmployeeShiftSerializer,\
     ShiftCreateSerializer, EOListSerializer, EOEntrySerializer,\
     CallOutSerializer, TimeOffRequestCreateSerializer,\
@@ -107,6 +107,8 @@ def phone_notify_employees(data):
 def email_notify_employees(data):
 
     employee_ids = set([x.employee.id for x in data])
+    from_email = 'shift.notifications@rosterbarn.com'
+    subject = 'You have new shifts posted'
 
     for person in EmployeeProfile.objects.filter(id__in=employee_ids,
                                                  email_notifications=True
@@ -123,8 +125,7 @@ def email_notify_employees(data):
                 print_time(time)
             )
 
-        profile_email = person.email
-        email_shift(profile_email, message)
+        send_text_email(from_email, person.email, subject, message)
 
 
 def date_string_to_datetime(date_string, time=None):
